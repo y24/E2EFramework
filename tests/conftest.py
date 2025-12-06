@@ -45,6 +45,40 @@ def setup_session(request):
     # Teardown
     DriverFactory.close_app()
 
+@pytest.hookimpl(tryfirst=True)
+def pytest_collection_modifyitems(session, config, items):
+    """Log execution details after collection."""
+    logging.info("-" * 60)
+    logging.info("Test Execution Summary")
+    logging.info("-" * 60)
+    
+    # Log Filter Conditions
+    tag = config.getoption("--tag")
+    keyword = config.getoption("-k")
+    mark = config.getoption("-m")
+    
+    conditions = []
+    if tag:
+        conditions.append(f"Tag: {tag}")
+    if keyword:
+        conditions.append(f"Keyword: {keyword}")
+    if mark:
+        conditions.append(f"Mark: {mark}")
+        
+    if conditions:
+        logging.info(f"Filters: {', '.join(conditions)}")
+    else:
+        logging.info("Filters: None (All tests)")
+        
+    # Log Test Count
+    logging.info(f"Total Tests to Run: {len(items)}")
+    
+    # Optional: Log list of tests if needed (can be verbose)
+    # for item in items:
+    #     logging.info(f"  - {item.nodeid}")
+        
+    logging.info("-" * 60)
+
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item, call):
     """Capture screenshot on failure."""
