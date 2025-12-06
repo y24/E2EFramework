@@ -1,0 +1,20 @@
+[
+    {
+        "id": "SAMPLE-002",
+        "name": "Win32アプリケーション検証サンプルシナリオ",
+        "tags": [
+            "sample"
+        ],
+        "steps": [
+            {
+                "name": "Win32アプリケーションを起動",
+                "type": "system",
+                "params": {
+                    "action": "start_app",
+                    "path": "D:\\Program Files\\Flexible Renamer\\Flexible Renamer.exe",
+                    "backend": "win32"
+                }
+            }
+        ]
+    }
+]
