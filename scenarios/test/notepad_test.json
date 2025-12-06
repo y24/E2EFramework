@@ -21,7 +21,15 @@
                 "params": {
                     "operation": "input",
                     "target": "notepad_page.NotepadPage.editor",
-                    "value": "Hello World from E2E"
+                    "value": "Hello World from E2E Framework"
+                }
+            },
+            {
+                "name": "スクリーンショットを取得",
+                "type": "screenshot",
+                "params": {
+                    "target": "notepad_page.NotepadPage.window",
+                    "filename": "notepad_after_input.png"
                 }
             },
             {
