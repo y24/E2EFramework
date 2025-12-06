@@ -1,0 +1,98 @@
+{
+    "id": "EXCEL-001",
+    "name": "Excel操作サンプルシナリオ",
+    "tags": [
+        "sample",
+        "excel"
+    ],
+    "description": "Excelを開き、セル操作とリボン操作を実行するサンプル",
+    "steps": [
+        {
+            "name": "Excelを起動してファイルを開く",
+            "type": "excel",
+            "params": {
+                "action": "start_excel",
+                "file_path": "C:\\Users\\vinta\\Desktop\\demo.xlsx"
+            }
+        },
+        {
+            "name": "セルA1を選択",
+            "type": "excel",
+            "params": {
+                "action": "select_cell",
+                "cell_address": "A1"
+            }
+        },
+        {
+            "name": "セルA1に 'Hello Excel!' と入力",
+            "type": "excel",
+            "params": {
+                "action": "input_text",
+                "value": "Hello Excel!"
+            }
+        },
+        {
+            "name": "セルB1を選択",
+            "type": "excel",
+            "params": {
+                "action": "select_cell",
+                "cell_address": "B1"
+            }
+        },
+        {
+            "name": "セルB1に '=A1' と入力",
+            "type": "excel",
+            "params": {
+                "action": "input_text",
+                "value": "=A1"
+            }
+        },
+        {
+            "name": "セルC1を選択",
+            "type": "excel",
+            "params": {
+                "action": "select_cell",
+                "cell_address": "C1"
+            }
+        },
+        {
+            "name": "セルC1に 1000 と入力",
+            "type": "excel",
+            "params": {
+                "action": "input_text",
+                "value": "1000"
+            }
+        },
+        {
+            "name": "セルC1を選択",
+            "type": "excel",
+            "params": {
+                "action": "select_cell",
+                "cell_address": "C1"
+            }
+        },
+        {
+            "name": "リボン: ホームタブ→中央揃え (Alt+H>AC)",
+            "type": "excel",
+            "params": {
+                "action": "ribbon_shortcut",
+                "shortcut": "H>AC"
+            }
+        },
+        {
+            "name": "ワークブックを閉じる（保存しない）",
+            "type": "excel",
+            "params": {
+                "action": "close_workbook",
+                "save": false
+            }
+        },
+        {
+            "name": "Excelを終了する",
+            "type": "excel",
+            "params": {
+                "action": "exit_excel"
+            }
+        }
+    ]
+}
