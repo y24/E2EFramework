@@ -18,7 +18,9 @@ class ScreenshotAction(BaseAction):
         if filename and not additional_name:
             additional_name = filename.replace('.png', '').replace('.jpg', '').replace('.jpeg', '')
         
-        manager = ScreenshotManager()
+        # Get screenshot directory from context
+        output_dir = self.context.get_variable('SCREENSHOTDIR', 'reports/screenshots')
+        manager = ScreenshotManager(output_dir=output_dir)
         
         if target:
             # UIAction like target resolution

@@ -35,20 +35,39 @@ def setup_session(request):
     base_reports = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'reports', run_folder))
     
     # ログとスクリーンショットのディレクトリを設定
-    log_dir = os.path.join(base_reports, 'logs')
     screenshot_dir = os.path.join(base_reports, 'screenshots')
     
     # Contextに保存（config.iniの値を上書き）
-    context.set_variable('LOGDIR', log_dir)
     context.set_variable('SCREENSHOTDIR', screenshot_dir)
     
     # ディレクトリを作成
-    os.makedirs(log_dir, exist_ok=True)
+    os.makedirs(base_reports, exist_ok=True)
     os.makedirs(screenshot_dir, exist_ok=True)
+    
+    # ログファイルの設定
+    log_file = os.path.join(base_reports, f'run_{run_folder}.log')
+    file_handler = logging.FileHandler(log_file, encoding='utf-8')
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(logging.Formatter(
+        '%(asctime)s - %(levelname)s - %(name)s - %(message)s'
+    ))
+    
+    # ルートロガーにファイルハンドラを追加
+    root_logger = logging.getLogger()
+    root_logger.addHandler(file_handler)
+    
+    # ファイルハンドラを後でクリーンアップするために保存
+    request.config._log_file_handler = file_handler
 
     yield
     
     # Teardown
+    # ファイルハンドラを削除してファイルを閉じる
+    if hasattr(request.config, '_log_file_handler'):
+        root_logger = logging.getLogger()
+        root_logger.removeHandler(request.config._log_file_handler)
+        request.config._log_file_handler.close()
+    
     DriverFactory.close_app()
 
 @pytest.hookimpl(tryfirst=True)
