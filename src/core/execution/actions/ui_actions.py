@@ -50,6 +50,22 @@ class UIAction(BaseAction):
                 
             elif operation == 'click':
                 element.click_input()
+
+            elif operation == 'read':
+                # Try to get text
+                # wrapper_object() gives the pywinauto wrapper
+                # We can try .window_text() or .get_value()
+                text = ""
+                try:
+                    # For Edit controls (text pattern)
+                    text = element.get_value()
+                except:
+                    # Fallback
+                    text = element.window_text()
+                    
+                save_as = params.get('save_as')
+                if save_as:
+                    self.context.set_variable(save_as, text)
                 
             else:
                 raise ValueError(f"Unknown UI operation: {operation}")

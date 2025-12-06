@@ -22,11 +22,21 @@
                 }
             },
             {
-                "name": "Verify Text Created",
-                "type": "system",
+                "name": "Read Editor Text",
+                "type": "ui",
                 "params": {
-                    "action": "print",
-                    "message": "Text input completed. Check if Notepad has text."
+                    "operation": "read",
+                    "target": "notepad_page.NotepadPage.editor",
+                    "save_as": "actual_text"
+                }
+            },
+            {
+                "name": "Verify Text Content",
+                "type": "verify",
+                "params": {
+                    "type": "contains",
+                    "text": "${actual_text}",
+                    "contains": "Hello World from E2E Framework"
                 }
             },
             {
