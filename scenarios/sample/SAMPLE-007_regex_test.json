@@ -1,0 +1,77 @@
+{
+    "id": "regex_test_001",
+    "name": "Regex Extraction Test",
+    "description": "Verifies that regex extraction works correctly in UI actions.",
+    "steps": [
+        {
+            "step_id": 1,
+            "name": "Start Notepad",
+            "type": "system",
+            "params": {
+                "action": "start_app",
+                "path": "notepad.exe"
+            }
+        },
+        {
+            "step_id": 2,
+            "name": "Initial Wait",
+            "type": "system",
+            "params": {
+                "action": "sleep",
+                "duration": 2
+            }
+        },
+        {
+            "step_id": 3,
+            "name": "Enter Text",
+            "type": "ui",
+            "params": {
+                "target": "notepad_page.NotepadPage.editor",
+                "operation": "input",
+                "value": "Order ID: 12345 Confirmed"
+            }
+        },
+        {
+            "step_id": 4,
+            "name": "Capture ID with Regex",
+            "type": "ui",
+            "params": {
+                "target": "notepad_page.NotepadPage.editor",
+                "operation": "read",
+                "save_as": "order_id",
+                "regex": "Order ID: (\\d+)"
+            }
+        },
+        {
+            "step_id": 5,
+            "name": "Capture Full Match",
+            "type": "ui",
+            "params": {
+                "target": "notepad_page.NotepadPage.editor",
+                "operation": "read",
+                "save_as": "full_msg",
+                "regex": "Order.*Confirmed"
+            }
+        },
+        {
+            "step_id": 6,
+            "name": "Verify ID",
+            "type": "verify",
+            "params": {
+                "type": "equals",
+                "actual": "${order_id}",
+                "expected": "12345"
+            }
+        },
+        {
+            "step_id": 7,
+            "name": "Verify Full msg",
+            "type": "verify",
+            "params": {
+                "type": "equals",
+                "actual": "${full_msg}",
+                "expected": "Order ID: 12345 Confirmed"
+            }
+        }
+    ]
+}

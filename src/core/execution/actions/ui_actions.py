@@ -1,4 +1,5 @@
 import importlib
+import re
 from typing import Dict, Any
 from src.core.execution.actions.base_action import BaseAction
 from src.core.execution.actions.action_dispatcher import ActionDispatcher
@@ -62,6 +63,19 @@ class UIAction(BaseAction):
                 except:
                     # Fallback
                     text = element.window_text()
+                
+                # Regex Extraction
+                regex_pattern = params.get('regex')
+                if regex_pattern:
+                    match = re.search(regex_pattern, text)
+                    if match:
+                        # If capture groups exist, use the first one. Otherwise use entire match.
+                        if match.groups():
+                            text = match.group(1)
+                        else:
+                            text = match.group(0)
+                    else:
+                        raise ValueError(f"Regex pattern '{regex_pattern}' did not match text: '{text}'")
                     
                 save_as = params.get('save_as')
                 if save_as:

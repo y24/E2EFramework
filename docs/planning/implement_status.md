@@ -22,12 +22,20 @@
 *   **自動取得**: `tests/conftest.py` のフックにより、テスト失敗時に自動でスクリーンショットを取得・保存する処理が実装済み。
 *   **任意取得**: アクション (`screenshot_action` module implied via listings) として実装済み。
 
+
 ### 1.4 高度な条件分岐 (Advanced Conditions)
 *   **要件**: UI要素の有無（ポップアップ等）を判定してステップをスキップする (要件 3.3)。
 *   **実装状況**:
     *   `src/core/execution/condition.py` に `_evaluate_element_exists` メソッドを実装済み。
     *   `element_exists` 条件タイプをサポート。`target`、`expected`、`timeout` パラメータで動作を制御。
     *   サンプルシナリオ: `scenarios/test/element_exists_sample.json`
+
+### 1.5 値のキャプチャ時の正規表現 (Regex Extraction)
+*   **要件**: 画面から値を取得する際、正規表現で必要な部分のみを抽出・保存する (要件 3.3)。
+*   **実装状況**:
+    *   `src/core/execution/actions/ui_actions.py` に実装済み。`read` 操作時に `regex` パラメータを指定可能。
+    *   検証シナリオ: `scenarios/test/regex_test.json`
+
 
 ---
 
@@ -47,17 +55,14 @@
     *   `src/utils/file_validator.py` が存在しません。
     *   `verify_actions.py` には `file_exists` (存在確認) しかなく、ファイルの中身（テキスト一致やExcelのセル検証）を確認するロジックが不足しています。
 
-### 2.3 値のキャプチャ時の正規表現 (Regex Extraction)
-*   **要件**: 画面から値を取得する際、正規表現で必要な部分のみを抽出・保存する (要件 3.3)。
-*   **現状**:
-    *   `src/core/execution/actions/ui_actions.py` の `operation == 'read'` 部分において、取得したテキストをそのまま変数に格納しています。
-    *   `regex` パラメータを受け取り、値を加工する処理が含まれていません。
+
+
 
 ## 3. 今後のアクションプラン (推奨)
 
 優先度順に以下の実装を推奨します。
 
 1.  ~~**条件判定の拡張**: `ConditionEvaluator` に `element_exists` を追加。~~ ✅ 実装済み
-2.  **正規表現キャプチャの実装**: `UIAction` (read operation) の改修。
+2.  ~~**正規表現キャプチャの実装**: `UIAction` (read operation) の改修。~~ ✅ 実装済み
 3.  **簡易通知機能**: `notifier.py` の作成と `conftest.py` への組み込み。
 4.  **ファイル検証**: テキスト/CSV レベルなどの基本的なファイル内容検証アクションの追加。
