@@ -1,5 +1,6 @@
 import logging
 import traceback
+import os
 from datetime import datetime
 from typing import Dict, Any
 
@@ -17,8 +18,9 @@ class Runner:
     def execute_scenario(self, scenario: Dict[str, Any]):
         """Executes a single scenario."""
         scenario_name = scenario.get('name', 'Unknown')
-        start_time = datetime.now()
-        self.logger.info(f"Starting scenario: {scenario_name} at {start_time}")
+        file_path = scenario.get('_file_path', '')
+        file_name = os.path.basename(file_path) if file_path else 'Unknown file'
+        self.logger.info(f"Starting scenario: {scenario_name} ({file_name})")
         
         steps = scenario.get('steps', [])
         
