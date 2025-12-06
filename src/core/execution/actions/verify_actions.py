@@ -1,3 +1,4 @@
+import os
 import importlib
 from typing import Dict, Any
 from src.core.execution.actions.base_action import BaseAction
@@ -30,7 +31,12 @@ class VerifyAction(BaseAction):
                 
                 element = getattr(page_instance, element_name)
                 
-                # Try to get text
+                if check_type == 'exists':
+                    if not element.exists():
+                         raise AssertionError(f"Element '{target}' not found")
+                    return
+
+                # Try to get text for other checks
                 try:
                     actual_value = element.get_value()
                 except:
