@@ -21,7 +21,7 @@
                 "params": {
                     "operation": "input",
                     "target": "notepad_page.NotepadPage.editor",
-                    "value": "Hello World from E2E Framework"
+                    "value": "Hello World from E2E"
                 }
             },
             {
