@@ -2,9 +2,10 @@ import os
 import time
 import winreg
 import logging
+import psutil
 from pywinauto import Application, Desktop
 from pywinauto.findwindows import find_window
-from typing import Optional
+from typing import Optional, List
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +40,28 @@ def get_excel_path():
             return path
 
     return None
+
+
+def get_process_ids_by_name(process_name: str) -> List[int]:
+    """プロセス名からプロセスIDのリストを取得
+    
+    Args:
+        process_name: プロセス名 (例: 'EXCEL.EXE')
+    
+    Returns:
+        List[int]: 該当するプロセスIDのリスト
+    """
+    process_ids = []
+    process_name_lower = process_name.lower()
+    
+    for proc in psutil.process_iter(['pid', 'name']):
+        try:
+            if proc.info['name'] and proc.info['name'].lower() == process_name_lower:
+                process_ids.append(proc.info['pid'])
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            pass
+    
+    return process_ids
 
 
 class DriverFactory:
@@ -129,14 +152,29 @@ class DriverFactory:
         elapsed_time = 0
         while elapsed_time < timeout:
             try:
-                window_handle = find_window(process='EXCEL.EXE')
-                if window_handle:
-                    excel_window = cls._excel_app.window(handle=window_handle)
-                    if excel_window.is_visible():
-                        logger.info(f"Excelウィンドウを検出しました（{elapsed_time:.1f}秒後）")
-                        return excel_window
+                # プロセス名からプロセスIDを取得
+                excel_pids = get_process_ids_by_name('EXCEL.EXE')
+                
+                if excel_pids:
+                    logger.debug(f"検出されたExcelプロセスID: {excel_pids}")
+                    
+                    # 各プロセスIDでウィンドウを検索
+                    for pid in excel_pids:
+                        try:
+                            window_handle = find_window(process=pid)
+                            if window_handle:
+                                excel_window = cls._excel_app.window(handle=window_handle)
+                                if excel_window.is_visible():
+                                    logger.info(f"プロセスID {pid} のExcelウィンドウを検出しました({elapsed_time:.1f}秒後)")
+                                    return excel_window
+                        except Exception as e:
+                            logger.debug(f"プロセスID {pid} のウィンドウ検索失敗: {e}")
+                            continue
+                else:
+                    logger.debug(f"Excelプロセスが見つかりません({elapsed_time:.1f}秒)")
+                    
             except Exception as e:
-                logger.debug(f"ウィンドウ検索中（{elapsed_time:.1f}秒）: {e}")
+                logger.debug(f"ウィンドウ検索中にエラー({elapsed_time:.1f}秒): {e}")
             
             time.sleep(check_interval)
             elapsed_time += check_interval
