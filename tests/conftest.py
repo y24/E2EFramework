@@ -100,7 +100,6 @@ def setup_session(request):
 @pytest.hookimpl(tryfirst=True)
 def pytest_collection_modifyitems(session, config, items):
     """Log execution details after collection."""
-    logging.info("-" * 40)
     logging.info("Test Execution Summary")
     logging.info("-" * 40)
     
