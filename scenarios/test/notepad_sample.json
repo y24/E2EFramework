@@ -40,7 +40,7 @@
                 "params": {
                     "type": "contains",
                     "target": "notepad_page.NotepadPage.editor",
-                    "contains": "Hello World from E2E Framework"
+                    "contains": "Hello World from E2E Frameworks"
                 }
             },
             {
