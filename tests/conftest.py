@@ -14,6 +14,7 @@ from src.core.scenario_loader import ScenarioLoader
 from src.utils.driver_factory import DriverFactory
 from src.core.execution.runner import Runner
 from src.utils.screenshot import ScreenshotManager
+from src.utils.run_context import get_run_folder_name
 
 def pytest_addoption(parser):
     parser.addoption("--env", action="store", default="DEFAULT", help="Environment to run tests against")
@@ -29,15 +30,20 @@ def setup_session(request):
     config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../config/config.ini'))
     context.load_config(config_path, env)
     
-    # Setup Logging
-    log_dir = context.get_variable('LOGDIR', 'reports/logs')
-    os.makedirs(log_dir, exist_ok=True)
+    # 実行ごとの固有フォルダを生成
+    run_folder = get_run_folder_name()
+    base_reports = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'reports', run_folder))
     
-    # Clean previous screenshots if needed
-    screenshot_dir = context.get_variable('SCREENSHOTDIR', 'reports/screenshots')
-    if os.path.exists(screenshot_dir):
-        # Optional: Clean up or archive. For now just ensure it exists.
-        pass
+    # ログとスクリーンショットのディレクトリを設定
+    log_dir = os.path.join(base_reports, 'logs')
+    screenshot_dir = os.path.join(base_reports, 'screenshots')
+    
+    # Contextに保存（config.iniの値を上書き）
+    context.set_variable('LOGDIR', log_dir)
+    context.set_variable('SCREENSHOTDIR', screenshot_dir)
+    
+    # ディレクトリを作成
+    os.makedirs(log_dir, exist_ok=True)
     os.makedirs(screenshot_dir, exist_ok=True)
 
     yield
@@ -77,7 +83,7 @@ def pytest_collection_modifyitems(session, config, items):
     # for item in items:
     #     logging.info(f"  - {item.nodeid}")
         
-    logging.info("-" * 60)
+    logging.info("-" * 40)
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item, call):

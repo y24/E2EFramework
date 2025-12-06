@@ -185,8 +185,7 @@ project_root/
 │   ├── conftest.py            # Hook/Fixture (Setup, Teardown, 失敗検知)
 │   └── test_runner.py         # pytest連携 (LoaderとRunnerのブリッジ)
 ├── reports/                   # (Git対象外) 実行結果出力先
-│   ├── screenshots/           # エラー時・任意撮影の画像
-│   └── logs/                  # 実行ログ
+│   └── ...                    # 実行ログ(実行ごとにフォルダ作成)
 ├── requirements.txt
 └── pytest.ini
 ```
