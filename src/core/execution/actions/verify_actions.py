@@ -3,6 +3,7 @@ import importlib
 from typing import Dict, Any
 from src.core.execution.actions.base_action import BaseAction
 from src.core.execution.actions.action_dispatcher import ActionDispatcher
+from src.utils.file_validator import FileValidator
 
 class VerifyAction(BaseAction):
     def execute(self, params: Dict[str, Any]):
@@ -53,6 +54,34 @@ class VerifyAction(BaseAction):
             path = params.get('path')
             assert os.path.exists(path), f"File does not exist: {path}"
             
+        elif check_type == 'file_content':
+            path = params.get('path')
+            file_type = params.get('file_type')
+            
+            # Infer file type if not provided
+            if not file_type:
+                if path.lower().endswith('.xlsx') or path.lower().endswith('.xls'):
+                    file_type = 'excel'
+                else:
+                    file_type = 'text'
+
+            if file_type == 'text':
+                FileValidator.validate_text_file(
+                    path=path,
+                    expected_content=params.get('expected'),
+                    mode=params.get('mode', 'exact'),
+                    encoding=params.get('encoding', 'utf-8')
+                )
+            elif file_type == 'excel':
+                FileValidator.validate_excel_file(
+                    path=path,
+                    cell=params.get('cell'),
+                    expected_value=params.get('expected'),
+                    sheet_name=params.get('sheet')
+                )
+            else:
+                raise ValueError(f"Unsupported file_type for file_content verification: {file_type}")
+
         elif check_type == 'contains':
             haystack = actual_value if actual_value is not None else params.get('text')
             needle = params.get('contains')

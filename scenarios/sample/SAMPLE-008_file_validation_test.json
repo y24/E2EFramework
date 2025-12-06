@@ -1,0 +1,63 @@
+{
+    "id": "SAMPLE-008",
+    "name": "ファイル検証テストシナリオ",
+    "description": "TextおよびExcelファイルのFileValidator機能を検証します。",
+    "steps": [
+        {
+            "name": "テスト用テキストファイル作成",
+            "type": "system",
+            "params": {
+                "action": "command",
+                "command": "cmd /c echo Hello World> c:\\temp\\test_validation.txt"
+            }
+        },
+        {
+            "name": "テキストファイル内容検証 (部分一致)",
+            "type": "verify",
+            "action": "verify",
+            "params": {
+                "type": "file_content",
+                "path": "c:\\temp\\test_validation.txt",
+                "file_type": "text",
+                "expected": "Hello World",
+                "mode": "contains"
+            }
+        },
+        {
+            "name": "テスト用Excelファイル作成 (Python)",
+            "type": "system",
+            "params": {
+                "action": "command",
+                "command": "python -c \"import openpyxl; wb = openpyxl.Workbook(); ws = wb.active; ws['A1'] = 'ExcelTest'; wb.save('c:\\\\temp\\\\test_validation.xlsx')\""
+            }
+        },
+        {
+            "name": "Excelファイル内容検証",
+            "type": "verify",
+            "action": "verify",
+            "params": {
+                "type": "file_content",
+                "path": "c:\\temp\\test_validation.xlsx",
+                "file_type": "excel",
+                "cell": "A1",
+                "expected": "ExcelTest"
+            }
+        },
+        {
+            "name": "テキストファイル削除",
+            "type": "system",
+            "params": {
+                "action": "command",
+                "command": "cmd /c del c:\\temp\\test_validation.txt"
+            }
+        },
+        {
+            "name": "Excelファイル削除",
+            "type": "system",
+            "params": {
+                "action": "command",
+                "command": "cmd /c del c:\\temp\\test_validation.xlsx"
+            }
+        }
+    ]
+}

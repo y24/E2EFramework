@@ -37,6 +37,14 @@
     *   検証シナリオ: `scenarios/test/regex_test.json`
 
 
+
+### 1.6 帳票/ファイル内容検証 (File Validation)
+*   **要件**: 出力されたファイル（Excel/Text）の内容を検証する (要件 3.4)。
+*   **実装状況**:
+    *   `src/utils/file_validator.py` を作成済み。Text (exact/contains/regex) と Excel (cell value) の検証をサポート。
+    *   `src/core/execution/actions/verify_actions.py` に `file_content` 検証タイプを追加済み。
+    *   検証シナリオ: `scenarios/test/file_validation_test.json`
+
 ---
 
 ## 2. 未実装・要対応の機能 (Not Implemented / TODO)
@@ -48,13 +56,6 @@
 *   **現状**:
     *   `src/utils/notifier.py` が存在しません。
     *   `tests/conftest.py` の `teardown` 処理において、通知を送信するロジックが記述されていません。
-
-### 2.2 帳票/ファイル内容検証 (File Validation)
-*   **要件**: 出力されたファイル（Excel/Text）の内容を検証する (要件 3.4)。
-*   **現状**:
-    *   `src/utils/file_validator.py` が存在しません。
-    *   `verify_actions.py` には `file_exists` (存在確認) しかなく、ファイルの中身（テキスト一致やExcelのセル検証）を確認するロジックが不足しています。
-
 
 
 

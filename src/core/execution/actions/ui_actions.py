@@ -47,6 +47,9 @@ class UIAction(BaseAction):
                 # set_text is faster but might not trigger events. type_keys simulates keystrokes.
                 # using type_keys for better compatibility with modern apps
                 if value is None: value = ""
+                # Clear field first using Ctrl+A + Delete
+                # This ensures we are setting the value, not appending
+                element.type_keys("^a{DELETE}", with_spaces=True)
                 element.type_keys(value, with_spaces=True)
                 
             elif operation == 'click':

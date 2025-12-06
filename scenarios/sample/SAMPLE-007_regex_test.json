@@ -1,11 +1,11 @@
 {
-    "id": "regex_test_001",
-    "name": "Regex Extraction Test",
-    "description": "Verifies that regex extraction works correctly in UI actions.",
+    "id": "SAMPLE-007",
+    "name": "正規表現抽出テスト",
+    "description": "UIアクションにおける正規表現抽出機能の動作を検証します。",
     "steps": [
         {
             "step_id": 1,
-            "name": "Start Notepad",
+            "name": "メモ帳起動",
             "type": "system",
             "params": {
                 "action": "start_app",
@@ -14,7 +14,7 @@
         },
         {
             "step_id": 2,
-            "name": "Initial Wait",
+            "name": "初期待機",
             "type": "system",
             "params": {
                 "action": "sleep",
@@ -23,7 +23,7 @@
         },
         {
             "step_id": 3,
-            "name": "Enter Text",
+            "name": "テキスト入力",
             "type": "ui",
             "params": {
                 "target": "notepad_page.NotepadPage.editor",
@@ -33,7 +33,7 @@
         },
         {
             "step_id": 4,
-            "name": "Capture ID with Regex",
+            "name": "正規表現でIDをキャプチャ",
             "type": "ui",
             "params": {
                 "target": "notepad_page.NotepadPage.editor",
@@ -44,7 +44,7 @@
         },
         {
             "step_id": 5,
-            "name": "Capture Full Match",
+            "name": "完全一致をキャプチャ",
             "type": "ui",
             "params": {
                 "target": "notepad_page.NotepadPage.editor",
@@ -55,7 +55,7 @@
         },
         {
             "step_id": 6,
-            "name": "Verify ID",
+            "name": "ID検証",
             "type": "verify",
             "params": {
                 "type": "equals",
@@ -65,7 +65,7 @@
         },
         {
             "step_id": 7,
-            "name": "Verify Full msg",
+            "name": "全文検証",
             "type": "verify",
             "params": {
                 "type": "equals",
