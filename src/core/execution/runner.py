@@ -19,11 +19,10 @@ class Runner:
         # Set current scenario in context for screenshot filename generation
         self.context.set_current_scenario(scenario)
         
-        id = scenario.get('id', 'Unknown')
         scenario_name = scenario.get('name', 'Unknown')
         file_path = scenario.get('_file_path', '')
         file_name = os.path.basename(file_path) if file_path else 'Unknown file'
-        self.logger.info(f"Starting scenario: [{id}]{scenario_name} ({file_name})")
+        self.logger.info(f"Starting scenario: {scenario_name} ({file_name})")
         
         steps = scenario.get('steps', [])
         

@@ -48,9 +48,9 @@ def setup_session(request):
 @pytest.hookimpl(tryfirst=True)
 def pytest_collection_modifyitems(session, config, items):
     """Log execution details after collection."""
-    logging.info("-" * 60)
+    logging.info("-" * 40)
     logging.info("Test Execution Summary")
-    logging.info("-" * 60)
+    logging.info("-" * 40)
     
     # Log Filter Conditions
     tag = config.getoption("--tag")
@@ -122,6 +122,6 @@ def pytest_generate_tests(metafunc):
         scenarios = loader.load_scenarios(tag_filter=tag if tag else None)
         
         # ID generation for consistent test names
-        ids = [s.get('name', 'unnamed') for s in scenarios]
+        ids = [s.get('id', 'unnamed') for s in scenarios]
         
         metafunc.parametrize("scenario", scenarios, ids=ids)
