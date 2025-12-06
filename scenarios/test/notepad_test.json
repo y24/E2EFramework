@@ -4,14 +4,6 @@
         "description": "Opens Notepad, types text, and verifies.",
         "steps": [
             {
-                "name": "Clean up existing Notepads",
-                "type": "system",
-                "params": {
-                    "action": "command",
-                    "command": "taskkill /IM notepad.exe /F || exit 0"
-                }
-            },
-            {
                 "name": "Start Notepad",
                 "type": "system",
                 "params": {

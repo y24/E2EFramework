@@ -1,5 +1,6 @@
 import logging
 import traceback
+from datetime import datetime
 from typing import Dict, Any
 
 from src.core.context import Context
@@ -16,7 +17,8 @@ class Runner:
     def execute_scenario(self, scenario: Dict[str, Any]):
         """Executes a single scenario."""
         scenario_name = scenario.get('name', 'Unknown')
-        self.logger.info(f"Starting scenario: {scenario_name}")
+        start_time = datetime.now()
+        self.logger.info(f"Starting scenario: {scenario_name} at {start_time}")
         
         steps = scenario.get('steps', [])
         
