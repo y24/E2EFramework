@@ -66,7 +66,7 @@ class ExcelAutomationHelper:
             self._app = DriverFactory.get_excel_app()
             self._excel_window = DriverFactory.get_excel_window()
 
-            logger.info("Excelウィンドウの準備が完了しました")
+            logger.debug("Excelウィンドウの準備が完了しました")
             return True
 
         except Exception as e:
@@ -93,13 +93,13 @@ class ExcelAutomationHelper:
 
             for attempt in range(max_retries):
                 try:
-                    logger.info(f"Excelウィンドウのアクティベートを試行中... (試行 {attempt + 1}/{max_retries})")
+                    logger.debug(f"Excelウィンドウのアクティベートを試行中... (試行 {attempt + 1}/{max_retries})")
 
                     # pywinautoのset_focus()を使用
                     try:
                         self.excel_window.set_focus()
                         time.sleep(ExcelConfig.get_timing('window_activation'))
-                        logger.info("pywinautoのset_focus()でExcelウィンドウをアクティベートしました")
+                        logger.debug("pywinautoのset_focus()でExcelウィンドウをアクティベートしました")
                         return True
                     except Exception as e:
                         logger.debug(f"set_focus()でのアクティベートに失敗: {e}")
@@ -115,13 +115,13 @@ class ExcelAutomationHelper:
                             time.sleep(ExcelConfig.get_timing('window_activation'))
                             win32gui.SetForegroundWindow(hwnd)
                             time.sleep(ExcelConfig.get_timing('window_activation'))
-                            logger.info("win32guiを使用してExcelウィンドウをアクティベートしました")
+                            logger.debug("win32guiを使用してExcelウィンドウをアクティベートしました")
                             return True
                     except Exception as e:
                         logger.debug(f"win32guiでのアクティベートに失敗: {e}")
 
                     if attempt < max_retries - 1:
-                        logger.info(f"アクティベートに失敗しました。{retry_delay}秒後にリトライします...")
+                        logger.debug(f"アクティベートに失敗しました。{retry_delay}秒後にリトライします...")
                         time.sleep(retry_delay)
 
                 except Exception as e:
@@ -147,9 +147,9 @@ class ExcelAutomationHelper:
             bool: Excelウィンドウがアクティブになったかどうか
         """
         try:
-            logger.info(f"{operation_name}の前にExcelウィンドウをアクティベート中...")
+            logger.debug(f"{operation_name}の前にExcelウィンドウをアクティベート中...")
             if self.activate_excel_window():
-                logger.info(f"{operation_name}の準備が完了しました")
+                logger.debug(f"{operation_name}の準備が完了しました")
                 return True
             else:
                 logger.warning(f"{operation_name}の準備に失敗しましたが、操作を続行します")
@@ -186,7 +186,7 @@ class ExcelAutomationHelper:
             send_keys('{ESC}')
             time.sleep(ExcelConfig.get_timing('cell_selection'))
 
-            logger.info(f"セル {address} を選択しました")
+            logger.debug(f"セル {address} を選択しました")
             return True
 
         except Exception as e:
@@ -201,7 +201,7 @@ class ExcelAutomationHelper:
             send_keys(text, with_spaces=True)
             time.sleep(ExcelConfig.get_timing('text_input'))
             send_keys('{ENTER}')
-            logger.info(f"テキストを入力しました: {text}")
+            logger.debug(f"テキストを入力しました: {text}")
             return True
 
         except Exception as e:
@@ -231,13 +231,13 @@ class ExcelAutomationHelper:
                     send_keys(key)
                     time.sleep(ExcelConfig.get_timing('ribbon_operation'))
 
-                logger.info(f"リボン短縮キー '{shortcut_key}' を実行しました")
+                logger.debug(f"リボン短縮キー '{shortcut_key}' を実行しました")
                 return True
             else:
                 # タブのみの短縮キーの場合
                 send_keys(shortcut_key.upper())
                 time.sleep(ExcelConfig.get_timing('ribbon_operation'))
-                logger.info(f"リボンタブ短縮キー '{shortcut_key}' を実行しました")
+                logger.debug(f"リボンタブ短縮キー '{shortcut_key}' を実行しました")
                 return True
 
         except Exception as e:
@@ -259,7 +259,7 @@ class ExcelAutomationHelper:
                 send_keys(ExcelConfig.get_shortcut('save_file'))
 
             time.sleep(ExcelConfig.get_timing('file_operation'))
-            logger.info("ファイルを保存しました")
+            logger.debug("ファイルを保存しました")
             return True
 
         except Exception as e:
@@ -288,7 +288,7 @@ class ExcelAutomationHelper:
                     send_keys('n')
                 
                 time.sleep(ExcelConfig.get_timing('dialog_wait'))
-                logger.info("ワークブックを閉じました")
+                logger.debug("ワークブックを閉じました")
 
             return True
 
@@ -308,7 +308,7 @@ class ExcelAutomationHelper:
             self._app = None
             self._excel_window = None
             
-            logger.info("Excelを終了しました")
+            logger.debug("Excelを終了しました")
         except Exception as e:
             logger.debug(f"Excel終了エラー（無視可能）: {e}")
         
@@ -332,7 +332,7 @@ class ExcelAutomationHelper:
             if isinstance(title_patterns, str):
                 title_patterns = [title_patterns]
 
-            logger.info(f"ダイアログの表示を待機中... (タイムアウト: {timeout}秒, パターン: {title_patterns})")
+            logger.debug(f"ダイアログの表示を待機中... (タイムアウト: {timeout}秒, パターン: {title_patterns})")
 
             start_time = time.time()
             dialog_found = False
@@ -344,7 +344,7 @@ class ExcelAutomationHelper:
                         try:
                             dialog_window = find_window(title_re=f".*{pattern}.*")
                             if dialog_window:
-                                logger.info(f"ダイアログを検出しました: {pattern}")
+                                logger.debug(f"ダイアログを検出しました: {pattern}")
                                 dialog_found = True
                                 break
                         except Exception:
@@ -359,15 +359,15 @@ class ExcelAutomationHelper:
                     time.sleep(0.5)
 
             if not dialog_found:
-                logger.info(f"ダイアログは表示されませんでした (パターン: {title_patterns})")
+                logger.debug(f"ダイアログは表示されませんでした (パターン: {title_patterns})")
                 return True
 
-            logger.info(f"ダイアログでアクション '{key_action}' を実行")
+            logger.debug(f"ダイアログでアクション '{key_action}' を実行")
             time.sleep(ExcelConfig.get_timing('dialog_wait'))
             send_keys(key_action)
             time.sleep(ExcelConfig.get_timing('dialog_wait', 0.2))
             
-            logger.info("ダイアログの処理が完了しました")
+            logger.debug("ダイアログの処理が完了しました")
             return True
 
         except Exception as e:
@@ -406,7 +406,7 @@ class ExcelAutomationHelper:
                             if file_path in self.copied_files:
                                 continue
                             os.remove(file_path)
-                            logger.info(f"デスクトップの復旧ファイルを削除しました: {file_path}")
+                            logger.debug(f"デスクトップの復旧ファイルを削除しました: {file_path}")
                         except Exception as e:
                             logger.debug(f"デスクトップ復旧ファイル削除エラー（無視可能）: {e}")
 
@@ -417,7 +417,7 @@ class ExcelAutomationHelper:
                         for file_path in files:
                             try:
                                 os.remove(file_path)
-                                logger.info(f"復旧ファイルを削除しました: {file_path}")
+                                logger.debug(f"復旧ファイルを削除しました: {file_path}")
                             except Exception as e:
                                 logger.debug(f"復旧ファイル削除エラー（無視可能）: {e}")
 
