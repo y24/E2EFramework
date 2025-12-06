@@ -1,0 +1,6 @@
+pytest
+pywinauto
+openpyxl
+pandas
+requests
+Pillow

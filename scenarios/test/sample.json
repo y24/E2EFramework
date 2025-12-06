@@ -1,0 +1,41 @@
+[
+    {
+        "name": "Sample Verification Scenario",
+        "description": "Verifies basic framework functionality using system actions.",
+        "steps": [
+            {
+                "name": "Print Start Message",
+                "type": "system",
+                "params": {
+                    "action": "print",
+                    "message": "Starting verification test..."
+                }
+            },
+            {
+                "name": "Verify Variable Resolution",
+                "type": "verify",
+                "params": {
+                    "type": "equals",
+                    "actual": "${BASEURL}",
+                    "expected": "http://localhost:8080"
+                }
+            },
+            {
+                "name": "Sleep for bit",
+                "type": "system",
+                "params": {
+                    "action": "sleep",
+                    "duration": 0.5
+                }
+            },
+            {
+                "name": "Print End Message",
+                "type": "system",
+                "params": {
+                    "action": "print",
+                    "message": "Verification complete."
+                }
+            }
+        ]
+    }
+]

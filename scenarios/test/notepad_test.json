@@ -1,0 +1,67 @@
+[
+    {
+        "name": "Notepad Verification Scenario",
+        "description": "Opens Notepad, types text, and verifies.",
+        "steps": [
+            {
+                "name": "Clean up existing Notepads",
+                "type": "system",
+                "params": {
+                    "action": "command",
+                    "command": "taskkill /IM notepad.exe /F || exit 0"
+                }
+            },
+            {
+                "name": "Start Notepad",
+                "type": "system",
+                "params": {
+                    "action": "start_app",
+                    "path": "notepad.exe",
+                    "backend": "uia"
+                }
+            },
+            {
+                "name": "Input Text",
+                "type": "ui",
+                "params": {
+                    "operation": "input",
+                    "target": "notepad_page.NotepadPage.editor",
+                    "value": "Hello World from E2E Framework"
+                }
+            },
+            {
+                "name": "Verify Text Created",
+                "type": "system",
+                "params": {
+                    "action": "print",
+                    "message": "Text input completed. Check if Notepad has text."
+                }
+            },
+            {
+                "name": "Select All and Delete",
+                "type": "ui",
+                "params": {
+                    "operation": "input",
+                    "target": "notepad_page.NotepadPage.editor",
+                    "value": "^a{DELETE}"
+                }
+            },
+            {
+                "name": "Click File Menu",
+                "type": "ui",
+                "params": {
+                    "operation": "click",
+                    "target": "notepad_page.NotepadPage.file_menu"
+                }
+            },
+            {
+                "name": "Click Exit Menu Item",
+                "type": "ui",
+                "params": {
+                    "operation": "click",
+                    "target": "notepad_page.NotepadPage.exit_menu_item"
+                }
+            }
+        ]
+    }
+]
