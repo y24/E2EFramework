@@ -3,181 +3,76 @@
 """
 Excel UI自動化ヘルパークラス
 pywinautoを使用してExcelのUI操作を自動化
+
+DriverFactoryと連携してアプリケーション管理を行う
 """
 
 import time
 import os
-import winreg
 import logging
-from pywinauto.application import Application
 from pywinauto.keyboard import send_keys
-from pywinauto.findwindows import find_window, find_windows
 
 from src.utils.excel_automation_configs import ExcelConfig
 
 logger = logging.getLogger(__name__)
 
 
-def get_excel_path():
-    """レジストリからExcelのインストールパスを取得"""
-    try:
-        # Office 2016以降（App Paths）
-        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\excel.exe") as key:
-            path, _ = winreg.QueryValueEx(key, "")
-            if os.path.exists(path):
-                logger.info(f"レジストリからExcelパスを取得: {path}")
-                return path
-    except Exception as e:
-        logger.debug(f"App Pathsからの取得に失敗: {e}")
-
-    try:
-        # Office 2016/2019/365
-        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Office\16.0\Excel\InstallRoot") as key:
-            path, _ = winreg.QueryValueEx(key, "Path")
-            excel_path = os.path.join(path, "EXCEL.EXE")
-            if os.path.exists(excel_path):
-                logger.info(f"レジストリからExcelパスを取得: {excel_path}")
-                return excel_path
-    except Exception as e:
-        logger.debug(f"Office 16.0からの取得に失敗: {e}")
-
-    logger.warning("レジストリからExcelパスを取得できませんでした")
-    return None
-
-
 class ExcelAutomationHelper:
     """Excel UI自動化のヘルパークラス"""
     
     def __init__(self):
-        self.app = None
-        self.excel_window = None
-        self.workbook = None
+        # DriverFactoryから取得（遅延バインディング）
+        self._app = None
+        self._excel_window = None
         self.copied_files = []  # コピーしたファイルのパスを記録
 
-    def wait_for_excel_window(self, timeout=None, check_interval=None):
-        """
-        Excelウィンドウが表示されるまで動的に待機
+    @property
+    def app(self):
+        """Application を取得（DriverFactory経由）"""
+        if self._app is None:
+            from src.utils.driver_factory import DriverFactory
+            if DriverFactory.is_excel_running():
+                self._app = DriverFactory.get_excel_app()
+        return self._app
+    
+    @app.setter
+    def app(self, value):
+        self._app = value
 
-        Args:
-            timeout (float): 最大待機時間（秒）（Noneの場合は設定ファイルの値を使用）
-            check_interval (float): チェック間隔（秒）（Noneの場合は設定ファイルの値を使用）
+    @property
+    def excel_window(self):
+        """Excelウィンドウを取得（DriverFactory経由）"""
+        if self._excel_window is None:
+            from src.utils.driver_factory import DriverFactory
+            if DriverFactory.is_excel_running():
+                self._excel_window = DriverFactory.get_excel_window()
+        return self._excel_window
+    
+    @excel_window.setter
+    def excel_window(self, value):
+        self._excel_window = value
 
-        Returns:
-            bool: ウィンドウが見つかったかどうか
-        """
-        if timeout is None:
-            timeout = ExcelConfig.get_timing('window_wait', 10)
-        if check_interval is None:
-            check_interval = 0.5
-
-        logger.info(f"Excelウィンドウの表示を待機中... (タイムアウト: {timeout}秒)")
-
-        process_name = ExcelConfig.get_excel_setting('process_name')
-        elapsed_time = 0
-
-        while elapsed_time < timeout:
-            try:
-                window_handle = find_window(process=process_name)
-                if window_handle:
-                    self.excel_window = self.app.window(handle=window_handle)
-                    # ウィンドウが実際に表示されているかチェック
-                    if self.excel_window.is_visible():
-                        logger.info(f"Excelウィンドウを検出しました（{elapsed_time:.1f}秒後）")
-                        return True
-            except Exception as e:
-                logger.debug(f"ウィンドウ検索中（{elapsed_time:.1f}秒）: {e}")
-
-            time.sleep(check_interval)
-            elapsed_time += check_interval
-
-        return False
-
-    def wait_for_dialog(self, title_patterns, timeout=None, check_interval=None):
-        """
-        指定されたタイトルパターンに一致するダイアログが表示されるまで待機
-
-        Args:
-            title_patterns (str or list): ダイアログタイトルのパターン（文字列またはリスト）
-            timeout (float): 最大待機時間（秒）
-            check_interval (float): チェック間隔（秒）
-
-        Returns:
-            tuple: (ダイアログが見つかったかどうか, ダイアログウィンドウオブジェクト)
-        """
+    def start_excel(self, file_path=None):
+        """Excelを起動し、指定されたファイルを開く"""
         try:
-            if isinstance(title_patterns, str):
-                title_patterns = [title_patterns]
+            # 起動前に復旧ファイルを削除
+            self._cleanup_recovery_files()
 
-            if timeout is None:
-                timeout = ExcelConfig.get_timing('dialog_timeout', 10)
-            if check_interval is None:
-                check_interval = ExcelConfig.get_timing('dialog_check_interval', 0.5)
-
-            logger.info(f"ダイアログの表示を待機中... (タイムアウト: {timeout}秒, パターン: {title_patterns})")
-
-            start_time = time.time()
-            while time.time() - start_time < timeout:
-                try:
-                    for pattern in title_patterns:
-                        try:
-                            dialog_window = find_window(title_re=f".*{pattern}.*")
-                            if dialog_window:
-                                logger.info(f"ダイアログを検出しました: {pattern}")
-                                return True, dialog_window
-                        except Exception as e:
-                            logger.debug(f"ダイアログ検索エラー（パターン: {pattern}）: {e}")
-                            continue
-
-                    time.sleep(check_interval)
-
-                except Exception as e:
-                    logger.debug(f"ダイアログ待機中のエラー: {e}")
-                    time.sleep(check_interval)
-
-            logger.warning(f"ダイアログの表示待機がタイムアウトしました (パターン: {title_patterns})")
-            return False, None
-
-        except Exception as e:
-            logger.error(f"ダイアログ待機エラー: {e}")
-            return False, None
-
-    def handle_dialog(self, title_patterns, key_action='{ESC}', timeout=10):
-        """
-        ダイアログを処理する（表示を待機してから適切なアクションを実行）
-
-        Args:
-            title_patterns (str or list): ダイアログタイトルのパターン
-            key_action (str): 実行するキー操作
-            timeout (float): ダイアログ表示待機時間（秒）
-
-        Returns:
-            bool: 処理が成功したかどうか
-        """
-        try:
-            dialog_found, dialog_window = self.wait_for_dialog(title_patterns, timeout)
-
-            if not dialog_found:
-                logger.info(f"ダイアログは表示されませんでした (パターン: {title_patterns})")
-                return True
-
-            logger.info(f"ダイアログでアクション '{key_action}' を実行")
-
-            try:
-                if dialog_window:
-                    dialog_window.set_focus()
-                    time.sleep(ExcelConfig.get_timing('dialog_wait', 0.2))
-            except Exception as e:
-                logger.debug(f"ダイアログアクティベートエラー: {e}")
-
-            time.sleep(ExcelConfig.get_timing('dialog_wait'))
-            send_keys(key_action)
-            time.sleep(ExcelConfig.get_timing('dialog_wait', 0.2))
+            # DriverFactory経由で起動
+            from src.utils.driver_factory import DriverFactory
+            DriverFactory.start_excel(file_path)
             
-            logger.info("ダイアログの処理が完了しました")
+            # 内部キャッシュを更新
+            self._app = DriverFactory.get_excel_app()
+            self._excel_window = DriverFactory.get_excel_window()
+
+            logger.info("Excelウィンドウの準備が完了しました")
             return True
 
         except Exception as e:
-            logger.error(f"ダイアログ処理エラー: {e}")
+            logger.error(f"Excel起動エラー: {e}")
+            import traceback
+            traceback.print_exc()
             return False
 
     def activate_excel_window(self, max_retries=3, retry_delay=1.0):
@@ -263,69 +158,6 @@ class ExcelAutomationHelper:
             logger.error(f"Excelウィンドウアクティベート確認エラー: {e}")
             return False
 
-    def start_excel(self, file_path=None):
-        """Excelを起動し、指定されたファイルを開く"""
-        try:
-            # 起動前に復旧ファイルを削除
-            self._cleanup_recovery_files()
-
-            # レジストリからExcelのパスを取得
-            excel_path = get_excel_path()
-
-            # Excelの一般的なインストールパスを試す
-            excel_paths = [
-                excel_path,
-                r"C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE",
-                r"C:\Program Files (x86)\Microsoft Office\root\Office16\EXCEL.EXE",
-                r"C:\Program Files\Microsoft Office\Office16\EXCEL.EXE",
-                r"C:\Program Files (x86)\Microsoft Office\Office16\EXCEL.EXE",
-            ]
-
-            # 有効なパスを見つける
-            valid_excel_path = None
-            for path in excel_paths:
-                if path is None:
-                    continue
-                try:
-                    if os.path.exists(path):
-                        valid_excel_path = path
-                        break
-                except:
-                    continue
-
-            if valid_excel_path is None:
-                logger.error("Excelが見つかりません。Excelがインストールされているか確認してください。")
-                return False
-
-            # Excelを起動
-            if file_path and os.path.exists(file_path):
-                cmd = f'"{valid_excel_path}" "{file_path}" /e'
-                self.app = Application(backend='uia').start(cmd)
-                logger.info(f"Excelファイルを開きました: {file_path}")
-            else:
-                self.app = Application(backend='uia').start(valid_excel_path)
-                logger.info("新しいExcelを起動しました")
-
-            # Excelウィンドウが表示されるまで動的に待機
-            if not self.wait_for_excel_window():
-                logger.warning("プロセス名でのウィンドウ検索に失敗、タイトルパターンを使用")
-                try:
-                    self.excel_window = self.app.window(title_re=ExcelConfig.get_excel_setting('window_title_pattern'))
-                    self.excel_window.wait('visible', timeout=5)
-                    logger.info("タイトルパターンでExcelウィンドウを検出しました")
-                except Exception as e:
-                    logger.error(f"タイトルパターンでのウィンドウ検索にも失敗: {e}")
-                    raise Exception("Excelウィンドウを検出できませんでした")
-
-            logger.info("Excelウィンドウの準備が完了しました")
-            return True
-
-        except Exception as e:
-            logger.error(f"Excel起動エラー: {e}")
-            import traceback
-            traceback.print_exc()
-            return False
-
     def select_cell(self, row=None, column=None, cell_address=None):
         """
         セルを選択
@@ -343,8 +175,8 @@ class ExcelAutomationHelper:
             else:
                 address = ExcelConfig.get_cell_address(row, column)
             
-            # 名前ボックスへ直接入力でセル移動（Ctrl+G よりも確実）
-            send_keys(ExcelConfig.get_shortcut('go_to'))  # Ctrl+G でジャンプ
+            # Ctrl+G でジャンプ
+            send_keys(ExcelConfig.get_shortcut('go_to'))
             time.sleep(ExcelConfig.get_timing('cell_selection'))
             send_keys(address)
             time.sleep(ExcelConfig.get_timing('cell_selection'))
@@ -451,10 +283,8 @@ class ExcelAutomationHelper:
                 
                 # 保存確認ダイアログが表示された場合の処理
                 if save:
-                    # 「保存」を選択
                     send_keys('{ENTER}')
                 else:
-                    # 「保存しない」を選択 (N キー)
                     send_keys('n')
                 
                 time.sleep(ExcelConfig.get_timing('dialog_wait'))
@@ -471,17 +301,78 @@ class ExcelAutomationHelper:
     def exit_excel(self):
         """Excelを終了する"""
         try:
-            if self.app and self.app.is_process_running():
-                self.app.kill()
-                logger.info("Excelを終了しました")
-        except:
-            try:
-                self.app.kill()
-                logger.info("Excelを終了しました")
-            except:
-                pass
-
+            from src.utils.driver_factory import DriverFactory
+            DriverFactory.close_excel()
+            
+            # 内部キャッシュをクリア
+            self._app = None
+            self._excel_window = None
+            
+            logger.info("Excelを終了しました")
+        except Exception as e:
+            logger.debug(f"Excel終了エラー（無視可能）: {e}")
+        
         self._cleanup_recovery_files()
+
+    def handle_dialog(self, title_patterns, key_action='{ESC}', timeout=10):
+        """
+        ダイアログを処理する
+
+        Args:
+            title_patterns (str or list): ダイアログタイトルのパターン
+            key_action (str): 実行するキー操作
+            timeout (float): ダイアログ表示待機時間（秒）
+
+        Returns:
+            bool: 処理が成功したかどうか
+        """
+        try:
+            from pywinauto.findwindows import find_window
+            
+            if isinstance(title_patterns, str):
+                title_patterns = [title_patterns]
+
+            logger.info(f"ダイアログの表示を待機中... (タイムアウト: {timeout}秒, パターン: {title_patterns})")
+
+            start_time = time.time()
+            dialog_found = False
+            dialog_window = None
+            
+            while time.time() - start_time < timeout:
+                try:
+                    for pattern in title_patterns:
+                        try:
+                            dialog_window = find_window(title_re=f".*{pattern}.*")
+                            if dialog_window:
+                                logger.info(f"ダイアログを検出しました: {pattern}")
+                                dialog_found = True
+                                break
+                        except Exception:
+                            continue
+                    
+                    if dialog_found:
+                        break
+                    
+                    time.sleep(0.5)
+                except Exception as e:
+                    logger.debug(f"ダイアログ待機中のエラー: {e}")
+                    time.sleep(0.5)
+
+            if not dialog_found:
+                logger.info(f"ダイアログは表示されませんでした (パターン: {title_patterns})")
+                return True
+
+            logger.info(f"ダイアログでアクション '{key_action}' を実行")
+            time.sleep(ExcelConfig.get_timing('dialog_wait'))
+            send_keys(key_action)
+            time.sleep(ExcelConfig.get_timing('dialog_wait', 0.2))
+            
+            logger.info("ダイアログの処理が完了しました")
+            return True
+
+        except Exception as e:
+            logger.error(f"ダイアログ処理エラー: {e}")
+            return False
 
     def _cleanup_recovery_files(self):
         """復旧ファイルを削除"""
