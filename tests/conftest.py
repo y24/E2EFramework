@@ -49,7 +49,7 @@ def setup_session(request):
     file_handler = logging.FileHandler(log_file, encoding='utf-8')
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(logging.Formatter(
-        '%(asctime)s - %(levelname)s - %(name)s - %(message)s'
+        '%(asctime)s - %(levelname)s - %(message)s'
     ))
     
     # ルートロガーにファイルハンドラを追加
@@ -101,8 +101,6 @@ def pytest_collection_modifyitems(session, config, items):
     # Optional: Log list of tests if needed (can be verbose)
     # for item in items:
     #     logging.info(f"  - {item.nodeid}")
-        
-    logging.info("-" * 40)
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item, call):
