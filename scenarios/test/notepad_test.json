@@ -1,13 +1,13 @@
 [
     {
-        "name": "Notepad Verification Scenario",
+        "name": "メモ帳検証シナリオ",
         "tags": [
             "notepad"
         ],
-        "description": "Opens Notepad, types text, and verifies.",
+        "description": "メモ帳を開き、テキスト入力を検証",
         "steps": [
             {
-                "name": "Start Notepad",
+                "name": "メモ帳を起動",
                 "type": "system",
                 "params": {
                     "action": "start_app",
@@ -16,7 +16,7 @@
                 }
             },
             {
-                "name": "Input Text",
+                "name": "テキストを入力",
                 "type": "ui",
                 "params": {
                     "operation": "input",
@@ -25,7 +25,7 @@
                 }
             },
             {
-                "name": "Verify Text Content",
+                "name": "テキスト内容を検証",
                 "type": "verify",
                 "params": {
                     "type": "contains",
@@ -34,7 +34,7 @@
                 }
             },
             {
-                "name": "Select All and Delete",
+                "name": "全選択して削除",
                 "type": "ui",
                 "params": {
                     "operation": "input",
@@ -43,7 +43,7 @@
                 }
             },
             {
-                "name": "Click File Menu",
+                "name": "ファイルメニューをクリック",
                 "type": "ui",
                 "params": {
                     "operation": "click",
@@ -51,7 +51,7 @@
                 }
             },
             {
-                "name": "Click Exit Menu Item",
+                "name": "終了メニュー項目をクリック",
                 "type": "ui",
                 "params": {
                     "operation": "click",
