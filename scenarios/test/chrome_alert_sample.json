@@ -1,0 +1,50 @@
+{
+    "id": "WEB-001",
+    "name": "Chromeアラートダイアログサンプル",
+    "tags": [
+        "sample",
+        "web",
+        "chrome"
+    ],
+    "description": "Google Chromeを起動し、アラートダイアログの表示・OKクリックを検証する",
+    "steps": [
+        {
+            "name": "Chromeブラウザを起動",
+            "type": "web",
+            "params": {
+                "operation": "start_browser",
+                "browser": "chrome"
+            }
+        },
+        {
+            "name": "アラートサンプルページに遷移",
+            "type": "web",
+            "params": {
+                "operation": "navigate",
+                "url": "https://www.tagindex.com/javascript/window/alert1.html"
+            }
+        },
+        {
+            "name": "警告ダイアログボタンをクリック",
+            "type": "web",
+            "params": {
+                "operation": "click",
+                "target": "alert_sample_page.AlertSamplePage.alert_button"
+            }
+        },
+        {
+            "name": "アラートのOKボタンをクリック",
+            "type": "web",
+            "params": {
+                "operation": "accept_alert"
+            }
+        },
+        {
+            "name": "ブラウザを終了",
+            "type": "web",
+            "params": {
+                "operation": "close_browser"
+            }
+        }
+    ]
+}
