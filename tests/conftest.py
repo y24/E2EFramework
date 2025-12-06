@@ -13,6 +13,7 @@ from src.core.context import Context
 from src.core.scenario_loader import ScenarioLoader
 from src.utils.driver_factory import DriverFactory
 from src.core.execution.runner import Runner
+from src.utils.screenshot import ScreenshotManager
 
 def pytest_addoption(parser):
     parser.addoption("--env", action="store", default="DEFAULT", help="Environment to run tests against")
@@ -54,14 +55,20 @@ def pytest_runtest_makereport(item, call):
         try:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             name = item.name.replace("/", "_").replace("\\", "_")
-            filename = f"reports/screenshots/FAIL_{name}_{timestamp}.png"
+            filename = f"FAIL_{name}_{timestamp}.png"
             
-            # Simple desktop screenshot using Pillow or pywinauto
-            # If DriverFactory has an app, maybe take app screenshot, otherwise desktop
-            from PIL import ImageGrab
-            screenshot = ImageGrab.grab()
-            screenshot.save(filename)
-            print(f"Screenshot saved to {filename}")
+            # Use ScreenshotManager to take the screenshot
+            from src.core.context import Context
+            context = Context()
+            output_dir = context.get_variable('SCREENSHOTDIR', 'reports/screenshots')
+            
+            manager = ScreenshotManager(output_dir=output_dir)
+            saved_path = manager.capture_screen(filename=filename)
+            
+            if saved_path:
+                print(f"Screenshot saved to {saved_path}")
+            else:
+                print("Failed to take screenshot.")
         except Exception as e:
             print(f"Failed to take screenshot: {e}")
 
