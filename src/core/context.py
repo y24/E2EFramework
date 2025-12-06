@@ -17,6 +17,7 @@ class Context:
             return
         self.variables: Dict[str, Any] = {}
         self.config = configparser.ConfigParser()
+        self.current_scenario: Optional[Dict[str, Any]] = None
         self._initialized = True
 
     def load_config(self, config_path: str, env: str = 'DEFAULT'):
@@ -55,7 +56,24 @@ class Context:
         
         return re.sub(r'\$\{([a-zA-Z0-9_]+)\}', replace, text)
 
+    def set_current_scenario(self, scenario: Dict[str, Any]):
+        """現在実行中のシナリオを設定します。"""
+        self.current_scenario = scenario
+
+    def get_current_test_id(self) -> str:
+        """現在のテストIDを取得します。"""
+        if self.current_scenario:
+            return self.current_scenario.get('id', 'UNKNOWN')
+        return 'UNKNOWN'
+
+    def get_current_test_name(self) -> str:
+        """現在のテスト名を取得します。"""
+        if self.current_scenario:
+            return self.current_scenario.get('name', 'Unknown')
+        return 'Unknown'
+
     def clear(self):
         """Clears all variables (mostly for testing)."""
         self.variables = {}
         self.config = configparser.ConfigParser()
+        self.current_scenario = None

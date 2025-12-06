@@ -7,7 +7,16 @@ from src.utils.screenshot import ScreenshotManager
 class ScreenshotAction(BaseAction):
     def execute(self, params: Dict[str, Any]):
         filename = params.get('filename')
+        additional_name = params.get('additional_name')
         target = params.get('target')
+        
+        # Get test info from context
+        test_id = self.context.get_current_test_id()
+        test_name = self.context.get_current_test_name()
+        
+        # If filename is provided but not additional_name, use filename as additional_name
+        if filename and not additional_name:
+            additional_name = filename.replace('.png', '').replace('.jpg', '').replace('.jpeg', '')
         
         manager = ScreenshotManager()
         
@@ -29,7 +38,10 @@ class ScreenshotAction(BaseAction):
                         element = getattr(page_instance, element_name)
                         # The element needs to be a wrapper that supports capture_as_image
                         # pywinauto elements usually do.
-                        manager.capture_element(element, filename)
+                        manager.capture_element(element, 
+                                              test_id=test_id, 
+                                              test_name=test_name, 
+                                              additional_name=additional_name)
                         return
                     else:
                         print(f"Warning: Element '{element_name}' not found on page '{class_name}'. Capturing full screen instead.")
@@ -39,7 +51,7 @@ class ScreenshotAction(BaseAction):
                 print(f"Warning: Failed to resolve target '{target}' for screenshot: {e}. Capturing full screen instead.")
                 
         # Fallback or default to full screen
-        manager.capture_screen(filename)
+        manager.capture_screen(test_id=test_id, test_name=test_name, additional_name=additional_name)
 
 # Register the action
 ActionDispatcher.register('screenshot', ScreenshotAction)

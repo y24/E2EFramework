@@ -1,5 +1,6 @@
 [
     {
+        "id": "TC002",
         "name": "Sample Verification Scenario",
         "description": "Verifies basic framework functionality using system actions.",
         "steps": [

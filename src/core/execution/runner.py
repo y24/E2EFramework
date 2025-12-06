@@ -16,6 +16,9 @@ class Runner:
 
     def execute_scenario(self, scenario: Dict[str, Any]):
         """Executes a single scenario."""
+        # Set current scenario in context for screenshot filename generation
+        self.context.set_current_scenario(scenario)
+        
         scenario_name = scenario.get('name', 'Unknown')
         file_path = scenario.get('_file_path', '')
         file_name = os.path.basename(file_path) if file_path else 'Unknown file'

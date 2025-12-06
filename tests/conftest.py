@@ -53,15 +53,20 @@ def pytest_runtest_makereport(item, call):
     
     if rep.when == "call" and rep.failed:
         try:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            name = item.name.replace("/", "_").replace("\\", "_")
-            filename = f"FAIL_{name}_{timestamp}.png"
-            
-            # Use ScreenshotManager to take the screenshot
+            from src.utils.screenshot_filename import generate_fail_filename
             from src.core.context import Context
+            
             context = Context()
             output_dir = context.get_variable('SCREENSHOTDIR', 'reports/screenshots')
             
+            # Get test info from context
+            test_id = context.get_current_test_id()
+            test_name = context.get_current_test_name()
+            
+            # Generate filename using new format
+            filename = generate_fail_filename(test_id, test_name)
+            
+            # Use ScreenshotManager to take the screenshot
             manager = ScreenshotManager(output_dir=output_dir)
             saved_path = manager.capture_screen(filename=filename)
             

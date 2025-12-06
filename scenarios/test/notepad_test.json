@@ -1,5 +1,6 @@
 [
     {
+        "id": "TC001",
         "name": "メモ帳検証シナリオ",
         "tags": [
             "notepad"
@@ -29,7 +30,7 @@
                 "type": "screenshot",
                 "params": {
                     "target": "notepad_page.NotepadPage.window",
-                    "filename": "notepad_after_input.png"
+                    "additional_name": "notepad_after_input"
                 }
             },
             {

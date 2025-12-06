@@ -23,17 +23,24 @@ class ScreenshotManager:
         
         os.makedirs(self.output_dir, exist_ok=True)
 
-    def capture_screen(self, filename: str = None) -> Optional[str]:
+    def capture_screen(self, 
+                      filename: str = None,
+                      test_id: str = None,
+                      test_name: str = None,
+                      additional_name: str = None) -> Optional[str]:
         """
         デスクトップ全体のスクリーンショットを撮影し保存します。
 
         Args:
-            filename (str, optional): 保存ファイル名。指定がない場合はタイムスタンプから生成。
+            filename (str, optional): 保存ファイル名。指定がない場合は新しいフォーマットで生成。
+            test_id (str, optional): テストID。新しいフォーマット用。
+            test_name (str, optional): テスト名。新しいフォーマット用。
+            additional_name (str, optional): 追加の名称。新しいフォーマット用。
 
         Returns:
             Optional[str]: 保存されたファイルの絶対パス。失敗時はNone。
         """
-        filepath = self._prepare_filepath(filename, prefix="screen")
+        filepath = self._prepare_filepath(filename, test_id, test_name, additional_name, prefix="screen")
         
         try:
             # PillowのImageGrabを使用して全画面キャプチャ
@@ -45,18 +52,26 @@ class ScreenshotManager:
             # ログ基盤が整備されていればそちらに出力すべきだが、現状は標準出力か無視
             return None
 
-    def capture_element(self, element: Any, filename: str = None) -> Optional[str]:
+    def capture_element(self, 
+                       element: Any, 
+                       filename: str = None,
+                       test_id: str = None,
+                       test_name: str = None,
+                       additional_name: str = None) -> Optional[str]:
         """
         指定されたUI要素(pywinauto wrapper)のスクリーンショットを撮影し保存します。
 
         Args:
             element (Any): pywinautoのUI要素オブジェクト (wrapper)
             filename (str, optional): 保存ファイル名。
+            test_id (str, optional): テストID。新しいフォーマット用。
+            test_name (str, optional): テスト名。新しいフォーマット用。
+            additional_name (str, optional): 追加の名称。新しいフォーマット用。
 
         Returns:
             Optional[str]: 保存されたファイルの絶対パス。失敗時はNone。
         """
-        filepath = self._prepare_filepath(filename, prefix="element")
+        filepath = self._prepare_filepath(filename, test_id, test_name, additional_name, prefix="element")
 
         try:
             # pywinautoの要素が capture_as_image() メソッドを持っていることを期待
@@ -71,20 +86,40 @@ class ScreenshotManager:
             # print(f"Error capturing element: {e}")
             return None
 
-    def _prepare_filepath(self, filename: str, prefix: str = "shot") -> str:
+    def _prepare_filepath(self, 
+                         filename: str = None,
+                         test_id: str = None,
+                         test_name: str = None,
+                         additional_name: str = None,
+                         prefix: str = "shot") -> str:
         """
         ファイル名を正規化し、保存先のフルパスを生成します。
+        
+        Args:
+            filename (str, optional): 直接指定されたファイル名（後方互換性用）
+            test_id (str, optional): テストID
+            test_name (str, optional): テスト名
+            additional_name (str, optional): 追加の名称
+            prefix (str): デフォルトのプレフィックス
+        
+        Returns:
+            str: 保存先のフルパス
         """
-        if not filename:
+        # 後方互換性: filenameが指定されている場合はそれを使用
+        if filename:
+            if not filename.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp')):
+                filename += ".png"
+            
+            # ファイル名に使えない文字を置換（簡易実装）
+            from src.utils.screenshot_filename import sanitize_filename
+            filename = sanitize_filename(filename)
+        # 新しいフォーマット: test_idとtest_nameが指定されている場合
+        elif test_id and test_name:
+            from src.utils.screenshot_filename import generate_normal_filename
+            filename = generate_normal_filename(test_id, test_name, additional_name)
+        # どちらも指定されていない場合: タイムスタンプベースのファイル名
+        else:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
             filename = f"{prefix}_{timestamp}.png"
-        
-        if not filename.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp')):
-            filename += ".png"
-            
-        # ファイル名に使えない文字を置換（簡易実装）
-        invalid_chars = '<>:"/\\|?*'
-        for char in invalid_chars:
-            filename = filename.replace(char, '_')
 
         return os.path.join(self.output_dir, filename)
