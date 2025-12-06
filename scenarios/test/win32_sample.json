@@ -1,53 +1,51 @@
-[
-    {
-        "id": "SAMPLE-002",
-        "name": "Win32アプリケーション検証サンプルシナリオ",
-        "tags": [
-            "sample",
-            "win32"
-        ],
-        "steps": [
-            {
-                "name": "Win32アプリケーションを起動",
-                "type": "system",
-                "params": {
-                    "action": "start_app",
-                    "path": "D:\\Program Files\\Flexible Renamer\\Flexible Renamer.exe",
-                    "backend": "win32"
-                }
-            },
-            {
-                "name": "リネームボタンをクリック",
-                "type": "ui",
-                "params": {
-                    "operation": "click",
-                    "target": "flexible_renamer.FlexibleRenamerPage.rename_button"
-                }
-            },
-            {
-                "name": "ダイアログ表示確認",
-                "type": "verify",
-                "params": {
-                    "type": "exists",
-                    "target": "flexible_renamer.FlexibleRenamerPage.dialog"
-                }
-            },
-            {
-                "name": "ダイアログテキスト確認",
-                "type": "verify",
-                "params": {
-                    "type": "exists",
-                    "target": "flexible_renamer.FlexibleRenamerPage.dialog_text"
-                }
-            },
-            {
-                "name": "OKボタンをクリック",
-                "type": "ui",
-                "params": {
-                    "operation": "click",
-                    "target": "flexible_renamer.FlexibleRenamerPage.ok_button"
-                }
+{
+    "id": "SAMPLE-002",
+    "name": "Win32アプリケーション検証サンプルシナリオ",
+    "tags": [
+        "sample",
+        "win32"
+    ],
+    "steps": [
+        {
+            "name": "Win32アプリケーションを起動",
+            "type": "system",
+            "params": {
+                "action": "start_app",
+                "path": "D:\\Program Files\\Flexible Renamer\\Flexible Renamer.exe",
+                "backend": "win32"
             }
-        ]
-    }
-]
+        },
+        {
+            "name": "リネームボタンをクリック",
+            "type": "ui",
+            "params": {
+                "operation": "click",
+                "target": "flexible_renamer.FlexibleRenamerPage.rename_button"
+            }
+        },
+        {
+            "name": "ダイアログ表示確認",
+            "type": "verify",
+            "params": {
+                "type": "exists",
+                "target": "flexible_renamer.FlexibleRenamerPage.dialog"
+            }
+        },
+        {
+            "name": "ダイアログテキスト確認",
+            "type": "verify",
+            "params": {
+                "type": "exists",
+                "target": "flexible_renamer.FlexibleRenamerPage.dialog_text"
+            }
+        },
+        {
+            "name": "OKボタンをクリック",
+            "type": "ui",
+            "params": {
+                "operation": "click",
+                "target": "flexible_renamer.FlexibleRenamerPage.ok_button"
+            }
+        }
+    ]
+}

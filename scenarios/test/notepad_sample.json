@@ -1,73 +1,71 @@
-[
-    {
-        "id": "SAMPLE-001",
-        "name": "メモ帳検証サンプルシナリオ",
-        "tags": [
-            "sample",
-            "notepad"
-        ],
-        "description": "メモ帳を開き、テキスト入力を検証",
-        "steps": [
-            {
-                "name": "メモ帳を起動",
-                "type": "system",
-                "params": {
-                    "action": "start_app",
-                    "path": "notepad.exe",
-                    "backend": "uia"
-                }
-            },
-            {
-                "name": "テキストを入力",
-                "type": "ui",
-                "params": {
-                    "operation": "input",
-                    "target": "notepad_page.NotepadPage.editor",
-                    "value": "Hello World from E2E Framework"
-                }
-            },
-            {
-                "name": "スクリーンショットを取得",
-                "type": "screenshot",
-                "params": {
-                    "target": "notepad_page.NotepadPage.window",
-                    "additional_name": "notepad_after_input"
-                }
-            },
-            {
-                "name": "テキスト内容を検証",
-                "type": "verify",
-                "params": {
-                    "type": "contains",
-                    "target": "notepad_page.NotepadPage.editor",
-                    "contains": "Hello World from E2E Frameworks"
-                }
-            },
-            {
-                "name": "全選択して削除",
-                "type": "ui",
-                "params": {
-                    "operation": "input",
-                    "target": "notepad_page.NotepadPage.editor",
-                    "value": "^a{DELETE}"
-                }
-            },
-            {
-                "name": "ファイルメニューをクリック",
-                "type": "ui",
-                "params": {
-                    "operation": "click",
-                    "target": "notepad_page.NotepadPage.file_menu"
-                }
-            },
-            {
-                "name": "終了メニュー項目をクリック",
-                "type": "ui",
-                "params": {
-                    "operation": "click",
-                    "target": "notepad_page.NotepadPage.exit_menu_item"
-                }
+{
+    "id": "SAMPLE-001",
+    "name": "メモ帳検証サンプルシナリオ",
+    "tags": [
+        "sample",
+        "notepad"
+    ],
+    "description": "メモ帳を開き、テキスト入力を検証",
+    "steps": [
+        {
+            "name": "メモ帳を起動",
+            "type": "system",
+            "params": {
+                "action": "start_app",
+                "path": "notepad.exe",
+                "backend": "uia"
             }
-        ]
-    }
-]
+        },
+        {
+            "name": "テキストを入力",
+            "type": "ui",
+            "params": {
+                "operation": "input",
+                "target": "notepad_page.NotepadPage.editor",
+                "value": "Hello World from E2E Framework"
+            }
+        },
+        {
+            "name": "スクリーンショットを取得",
+            "type": "screenshot",
+            "params": {
+                "target": "notepad_page.NotepadPage.window",
+                "additional_name": "notepad_after_input"
+            }
+        },
+        {
+            "name": "テキスト内容を検証",
+            "type": "verify",
+            "params": {
+                "type": "contains",
+                "target": "notepad_page.NotepadPage.editor",
+                "contains": "Hello World from E2E Framework"
+            }
+        },
+        {
+            "name": "全選択して削除",
+            "type": "ui",
+            "params": {
+                "operation": "input",
+                "target": "notepad_page.NotepadPage.editor",
+                "value": "^a{DELETE}"
+            }
+        },
+        {
+            "name": "ファイルメニューをクリック",
+            "type": "ui",
+            "params": {
+                "operation": "click",
+                "target": "notepad_page.NotepadPage.file_menu"
+            }
+        },
+        {
+            "name": "終了メニュー項目をクリック",
+            "type": "ui",
+            "params": {
+                "operation": "click",
+                "target": "notepad_page.NotepadPage.exit_menu_item"
+            }
+        }
+    ]
+}
