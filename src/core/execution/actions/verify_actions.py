@@ -1,4 +1,4 @@
-import os
+import importlib
 from typing import Dict, Any
 from src.core.execution.actions.base_action import BaseAction
 from src.core.execution.actions.action_dispatcher import ActionDispatcher
@@ -7,17 +7,48 @@ class VerifyAction(BaseAction):
     def execute(self, params: Dict[str, Any]):
         check_type = params.get('type')
         
+        # Resolve target if specified
+        target = params.get('target')
+        actual_value = params.get('actual')
+
+        if target:
+            try:
+                parts = target.split('.')
+                if len(parts) < 3:
+                     raise ValueError(f"Invalid target format '{target}'. Expected 'module.Class.property'")
+                
+                module_name = parts[0]
+                class_name = parts[1]
+                element_name = parts[2]
+                
+                module = importlib.import_module(f"src.pages.{module_name}")
+                page_class = getattr(module, class_name)
+                page_instance = page_class()
+                
+                if not hasattr(page_instance, element_name):
+                     raise AttributeError(f"Page '{class_name}' has no element '{element_name}'")
+                
+                element = getattr(page_instance, element_name)
+                
+                # Try to get text
+                try:
+                    actual_value = element.get_value()
+                except:
+                    actual_value = element.window_text()
+
+            except Exception as e:
+                raise Exception(f"Failed to resolve verification target '{target}': {e}")
+        
         if check_type == 'equals':
-            actual = params.get('actual')
             expected = params.get('expected')
-            assert actual == expected, f"Verification failed: expected '{expected}', but got '{actual}'"
+            assert actual_value == expected, f"Verification failed: expected '{expected}', but got '{actual_value}'"
             
         elif check_type == 'file_exists':
             path = params.get('path')
             assert os.path.exists(path), f"File does not exist: {path}"
             
         elif check_type == 'contains':
-            haystack = params.get('text')
+            haystack = actual_value if actual_value is not None else params.get('text')
             needle = params.get('contains')
             assert needle in haystack, f"Text '{needle}' not found in '{haystack}'"
 
