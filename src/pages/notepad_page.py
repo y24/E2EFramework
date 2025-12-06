@@ -46,3 +46,47 @@ class NotepadPage(BasePage):
         # It is often a child of the Menu or the Window (depending on UIA tree structure after expansion).
         # We can try to find it under the window (assuming it pops up as a context menu or similar)
         return self.window.child_window(title_re=".*(Exit|終了).*", control_type="MenuItem")
+
+    @property
+    def save_as_menu_item(self):
+        # "Save As" menu item. In Japanese "名前を付けて保存".
+        return self.window.child_window(title_re=".*(Save [Aa]s|名前を付けて保存).*", control_type="MenuItem")
+
+    @property
+    def save_dialog(self):
+        # Save dialog window. In Japanese "名前を付けて保存".
+        # This is a standard Windows file dialog
+        from pywinauto import Desktop
+        # Search for dialog with title containing "保存" or "Save"
+        return Desktop(backend='uia').window(title_re=".*(保存|Save).*", control_type="Window")
+
+    @property
+    def cancel_button(self):
+        # Cancel button in save dialog. In Japanese "キャンセル".
+        # The button might be nested deep in the dialog hierarchy
+        dialog = self.save_dialog
+        if dialog.exists(timeout=1):
+            # Use descendants to search all child elements recursively
+            buttons = dialog.descendants(control_type="Button")
+            for btn in buttons:
+                try:
+                    text = btn.window_text()
+                    # Match "キャンセル" or "Cancel"
+                    if "キャンセル" in text or "Cancel" in text:
+                        return btn
+                except:
+                    continue
+        return None
+
+    @property
+    def save_confirmation_dialog(self):
+        # Save confirmation dialog when closing without saving. In Japanese "メモ帳".
+        from pywinauto import Desktop
+        return Desktop(backend='uia').window(title_re=".*(Notepad|メモ帳).*", control_type="Window", found_index=0)
+
+    @property
+    def dont_save_button(self):
+        # "Don't Save" button in save confirmation dialog. In Japanese "保存しない".
+        return self.save_confirmation_dialog.child_window(title_re=".*(Don't [Ss]ave|保存しない).*", control_type="Button")
+
+

@@ -1,0 +1,80 @@
+{
+    "id": "SAMPLE-005",
+    "name": "保存ダイアログテスト",
+    "tags": [
+        "sample",
+        "notepad",
+        "dialog"
+    ],
+    "description": "保存ダイアログの操作をテスト",
+    "steps": [
+        {
+            "name": "メモ帳を起動",
+            "type": "system",
+            "params": {
+                "action": "start_app",
+                "path": "notepad.exe",
+                "backend": "uia"
+            }
+        },
+        {
+            "name": "テキストを入力",
+            "type": "ui",
+            "params": {
+                "operation": "input",
+                "target": "notepad_page.NotepadPage.editor",
+                "value": "保存ダイアログのテスト"
+            }
+        },
+        {
+            "name": "Ctrl+Shift+Sで保存ダイアログを開く",
+            "type": "ui",
+            "params": {
+                "operation": "input",
+                "target": "notepad_page.NotepadPage.editor",
+                "value": "^+s"
+            }
+        },
+        {
+            "name": "保存ダイアログの表示を待機",
+            "type": "system",
+            "params": {
+                "action": "sleep",
+                "seconds": 2
+            }
+        },
+        {
+            "name": "保存ダイアログのスクリーンショット",
+            "type": "screenshot",
+            "params": {
+                "target": "notepad_page.NotepadPage.save_dialog",
+                "additional_name": "save_dialog"
+            }
+        },
+        {
+            "name": "キャンセルボタンをクリック",
+            "type": "ui",
+            "params": {
+                "operation": "click",
+                "target": "notepad_page.NotepadPage.cancel_button"
+            }
+        },
+        {
+            "name": "ダイアログが閉じるのを待機",
+            "type": "system",
+            "params": {
+                "action": "sleep",
+                "seconds": 0.5
+            }
+        },
+        {
+            "name": "メモ帳を終了",
+            "type": "ui",
+            "params": {
+                "operation": "input",
+                "target": "notepad_page.NotepadPage.editor",
+                "value": "%{F4}"
+            }
+        }
+    ]
+}

@@ -1,0 +1,92 @@
+{
+    "id": "SAMPLE-004",
+    "name": "element_exists条件判定サンプル",
+    "tags": [
+        "sample",
+        "notepad",
+        "condition"
+    ],
+    "description": "UI要素の有無を判定してステップをスキップする機能のデモンストレーション",
+    "steps": [
+        {
+            "name": "メモ帳を起動",
+            "type": "system",
+            "params": {
+                "action": "start_app",
+                "path": "notepad.exe",
+                "backend": "uia"
+            }
+        },
+        {
+            "name": "保存ダイアログが存在しない場合のみ実行（条件成立）",
+            "type": "ui",
+            "params": {
+                "operation": "input",
+                "target": "notepad_page.NotepadPage.editor",
+                "value": "条件成立: 保存ダイアログは存在しません"
+            },
+            "condition": {
+                "type": "element_exists",
+                "target": "notepad_page.NotepadPage.save_dialog",
+                "expected": false,
+                "timeout": 1
+            }
+        },
+        {
+            "name": "保存ダイアログが存在する場合のみ実行（条件不成立でスキップ）",
+            "type": "ui",
+            "params": {
+                "operation": "input",
+                "target": "notepad_page.NotepadPage.editor",
+                "value": "このテキストは表示されないはず"
+            },
+            "condition": {
+                "type": "element_exists",
+                "target": "notepad_page.NotepadPage.save_dialog",
+                "expected": true,
+                "timeout": 1
+            }
+        },
+        {
+            "name": "スクリーンショットを取得",
+            "type": "screenshot",
+            "params": {
+                "target": "notepad_page.NotepadPage.window",
+                "additional_name": "after_condition_test"
+            }
+        },
+        {
+            "name": "メモ帳のウィンドウが存在する場合のみ実行（条件成立）",
+            "type": "ui",
+            "params": {
+                "operation": "input",
+                "target": "notepad_page.NotepadPage.editor",
+                "value": "\n条件成立: メモ帳ウィンドウは存在します"
+            },
+            "condition": {
+                "type": "element_exists",
+                "target": "notepad_page.NotepadPage.window",
+                "expected": true,
+                "timeout": 0
+            }
+        },
+        {
+            "name": "全選択して削除",
+            "type": "ui",
+            "params": {
+                "operation": "input",
+                "target": "notepad_page.NotepadPage.editor",
+                "value": "^a{DELETE}"
+            }
+        },
+        {
+            "name": "メモ帳を終了（Alt+F4）",
+            "type": "ui",
+            "params": {
+                "operation": "input",
+                "target": "notepad_page.NotepadPage.editor",
+                "value": "%{F4}"
+            }
+        }
+    ]
+}
