@@ -71,11 +71,12 @@
             }
         },
         {
-            "name": "終了(保存なし)",
-            "type": "system",
+            "name": "メモ帳を終了",
+            "type": "ui",
             "params": {
-                "action": "kill_app",
-                "path": "notepad.exe"
+                "operation": "input",
+                "target": "notepad_page.NotepadPage.editor",
+                "value": "%{F4}"
             }
         }
     ]
