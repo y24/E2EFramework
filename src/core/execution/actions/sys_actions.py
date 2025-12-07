@@ -26,6 +26,11 @@ class SystemAction(BaseAction):
             path = params.get('path')
             backend = params.get('backend', 'uia')
             DriverFactory.start_app(path, backend=backend)
+
+        elif action == 'set_variables':
+            variables = params.get('variables', {})
+            for key, value in variables.items():
+                self.context.set_variable(key, value)
             
         else:
             raise ValueError(f"Unknown system action: {action}")

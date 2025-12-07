@@ -1,0 +1,37 @@
+{
+    "id": "SAMPLE-010",
+    "name": "Shared Scenario Verification Sample",
+    "tags": [
+        "sample",
+        "shared_test"
+    ],
+    "steps": [
+        {
+            "name": "Start App",
+            "type": "system",
+            "params": {
+                "action": "print",
+                "message": "Application Started"
+            }
+        },
+        {
+            "name": "Run Shared Login",
+            "type": "run_scenario",
+            "params": {
+                "path": "common/login.json",
+                "args": {
+                    "login_user": "admin_user",
+                    "login_password": "secret_password"
+                }
+            }
+        },
+        {
+            "name": "Verify Login",
+            "type": "system",
+            "params": {
+                "action": "print",
+                "message": "Login Verified"
+            }
+        }
+    ]
+}

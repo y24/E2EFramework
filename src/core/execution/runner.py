@@ -28,7 +28,13 @@ class Runner:
         
         for i, step in enumerate(steps):
             step_name = step.get('name', f"Step {i+1}")
-            self.logger.info(f"  Executing step: {step_name}")
+            source = step.get('_source')
+            if source:
+                log_prefix = f"[{source}] "
+            else:
+                log_prefix = ""
+                
+            self.logger.info(f"  Executing step: {log_prefix}{step_name}")
             
             # Check condition
             if 'condition' in step:

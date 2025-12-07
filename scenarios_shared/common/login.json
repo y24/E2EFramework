@@ -1,0 +1,29 @@
+{
+    "name": "Common Login",
+    "steps": [
+        {
+            "name": "Simulate User Input",
+            "type": "system",
+            "params": {
+                "action": "print",
+                "message": "Inputting Username: ${login_user}"
+            }
+        },
+        {
+            "name": "Simulate Password Input",
+            "type": "system",
+            "params": {
+                "action": "print",
+                "message": "Inputting Password: ${login_password}"
+            }
+        },
+        {
+            "name": "Simulate Login Click",
+            "type": "system",
+            "params": {
+                "action": "print",
+                "message": "Clicking Login Button"
+            }
+        }
+    ]
+}
