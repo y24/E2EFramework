@@ -46,6 +46,15 @@
                 "operation": "click",
                 "target": "flexible_renamer.FlexibleRenamerPage.ok_button"
             }
+        },
+        {
+            "name": "アプリケーションを終了",
+            "type": "ui",
+            "params": {
+                "operation": "input",
+                "target": "notepad_page.NotepadPage.editor",
+                "value": "%{F4}"
+            }
         }
     ]
 }
