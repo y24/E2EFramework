@@ -1,0 +1,82 @@
+{
+    "id": "SAMPLE-009",
+    "name": "設定値参照サンプル",
+    "description": "Configから値を取得して利用するサンプル",
+    "tags": [
+        "sample",
+        "config"
+    ],
+    "steps": [
+        {
+            "name": "メモ帳を起動",
+            "type": "system",
+            "params": {
+                "action": "start_app",
+                "path": "notepad.exe",
+                "backend": "uia"
+            }
+        },
+        {
+            "name": "Config値を入力",
+            "type": "ui",
+            "params": {
+                "operation": "input",
+                "target": "notepad_page.NotepadPage.editor",
+                "value": "${SAMPLE_TEXT}"
+            }
+        },
+        {
+            "name": "入力内容を検証",
+            "type": "verify",
+            "params": {
+                "type": "contains",
+                "target": "notepad_page.NotepadPage.editor",
+                "contains": "${SAMPLE_TEXT}"
+            }
+        },
+        {
+            "name": "全選択して削除",
+            "type": "ui",
+            "params": {
+                "operation": "input",
+                "target": "notepad_page.NotepadPage.editor",
+                "value": "^a{DELETE}"
+            }
+        },
+        {
+            "name": "セクション付きConfig値を入力",
+            "type": "ui",
+            "params": {
+                "operation": "input",
+                "target": "notepad_page.NotepadPage.editor",
+                "value": "${TEST_SECTION.Message}"
+            }
+        },
+        {
+            "name": "セクション付き入力内容を検証",
+            "type": "verify",
+            "params": {
+                "type": "contains",
+                "target": "notepad_page.NotepadPage.editor",
+                "contains": "${TEST_SECTION.Message}"
+            }
+        },
+        {
+            "name": "全選択して削除(2回目)",
+            "type": "ui",
+            "params": {
+                "operation": "input",
+                "target": "notepad_page.NotepadPage.editor",
+                "value": "^a{DELETE}"
+            }
+        },
+        {
+            "name": "終了(保存なし)",
+            "type": "system",
+            "params": {
+                "action": "kill_app",
+                "path": "notepad.exe"
+            }
+        }
+    ]
+}

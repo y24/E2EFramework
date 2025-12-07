@@ -46,15 +46,22 @@ class Context:
         return self.variables.get(key, default)
 
     def resolve(self, text: str) -> str:
-        """Resolves variables in the format ${VAR_NAME} within a string."""
+        """Resolves variables in the format ${VAR_NAME} or ${SECTION.KEY} within a string."""
         if not isinstance(text, str):
             return text
         
         def replace(match):
             key = match.group(1)
+            # Check for Section.Key format
+            if '.' in key:
+                section, option = key.split('.', 1)
+                if section in self.config and option in self.config[section]:
+                    return self.config[section][option]
+                # If not found in config, fall through to variable lookup or keep original
+            
             return str(self.variables.get(key, match.group(0)))
         
-        return re.sub(r'\$\{([a-zA-Z0-9_]+)\}', replace, text)
+        return re.sub(r'\$\{([a-zA-Z0-9_.]+)\}', replace, text)
 
     def set_current_scenario(self, scenario: Dict[str, Any]):
         """現在実行中のシナリオを設定します。"""
