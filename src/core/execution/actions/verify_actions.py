@@ -49,11 +49,21 @@ class VerifyAction(BaseAction):
         if check_type == 'equals':
             expected = params.get('expected')
             assert actual_value == expected, f"Verification failed: expected '{expected}', but got '{actual_value}'"
-            
+
+        elif check_type == 'contains':
+            haystack = actual_value if actual_value is not None else params.get('text')
+            needle = params.get('contains')
+            assert needle in haystack, f"Text '{needle}' not found in '{haystack}'"
+
         elif check_type == 'file_exists':
             path = params.get('path')
             assert os.path.exists(path), f"File does not exist: {path}"
             
+            min_size = params.get('min_size')
+            if min_size is not None:
+                actual_size = os.path.getsize(path)
+                assert actual_size >= int(min_size), f"File size {actual_size} bytes is smaller than required {min_size} bytes"
+
         elif check_type == 'file_content':
             path = params.get('path')
             file_type = params.get('file_type')
@@ -81,11 +91,6 @@ class VerifyAction(BaseAction):
                 )
             else:
                 raise ValueError(f"Unsupported file_type for file_content verification: {file_type}")
-
-        elif check_type == 'contains':
-            haystack = actual_value if actual_value is not None else params.get('text')
-            needle = params.get('contains')
-            assert needle in haystack, f"Text '{needle}' not found in '{haystack}'"
 
         else:
             raise ValueError(f"Unknown verify type: {check_type}")
