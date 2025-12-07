@@ -35,6 +35,10 @@ class ConditionEvaluator:
             return self._evaluate_variable(condition)
         elif cond_type == 'element_exists':
             return self._evaluate_element_exists(condition)
+        elif cond_type == 'element_text_empty':
+            return self._evaluate_text_empty(condition)
+        elif cond_type == 'checkbox_state':
+            return self._evaluate_checkbox_state(condition)
         
         # Unknown condition type - log warning and return True (don't skip step)
         self.logger.warning(f"Unknown condition type: {cond_type}. Condition will be ignored.")
@@ -79,62 +83,147 @@ class ConditionEvaluator:
         target = condition.get('target')
         expected = condition.get('expected', True)
         timeout = condition.get('timeout', 0)
-        
-        if not target:
-            self.logger.error("element_exists condition requires 'target' parameter")
+        element = self._resolve_element(target, required_field="element_exists")
+        if not element:
             return False
         
         # Normalize expected value
         if isinstance(expected, str):
             expected = expected.lower() == 'true'
         
-        try:
-            # Parse target (format: "module.Class.element")
-            parts = target.split('.')
-            if len(parts) < 3:
-                self.logger.error(f"Invalid target format '{target}'. Expected 'module.Class.element'")
+        # Check existence with timeout
+        exists = False
+        if timeout > 0:
+            try:
+                element.wait('exists', timeout=timeout)
+                exists = True
+            except Exception:
+                exists = False
+        else:
+            try:
+                exists = element.exists()
+            except Exception as e:
+                self.logger.error(f"Error checking existence for '{target}': {e}")
                 return False
-            
-            module_name = parts[0]
-            class_name = parts[1]
-            element_name = parts[2]
-            
-            # Dynamic import
+        
+        # Compare with expected value
+        result = (exists == expected)
+        
+        self.logger.info(
+            f"element_exists condition: target='{target}', "
+            f"exists={exists}, expected={expected}, result={result}"
+        )
+        
+        return result
+
+    def _evaluate_text_empty(self, condition: Dict[str, Any]) -> bool:
+        target = condition.get('target')
+        expected = condition.get('expected', True)
+        
+        if isinstance(expected, str):
+            expected = expected.lower() == 'true'
+        
+        element = self._resolve_element(target, required_field="element_text_empty")
+        if not element:
+            return False
+        
+        text_value = None
+        try:
+            text_value = element.get_value()
+        except Exception:
+            try:
+                text_value = element.window_text()
+            except Exception as e:
+                self.logger.error(f"Error retrieving text for '{target}': {e}")
+                return False
+        
+        is_empty = (text_value is None) or (str(text_value) == '')
+        result = (is_empty == expected)
+        
+        self.logger.info(
+            f"element_text_empty condition: target='{target}', "
+            f"is_empty={is_empty}, expected={expected}, result={result}"
+        )
+        
+        return result
+
+    def _evaluate_checkbox_state(self, condition: Dict[str, Any]) -> bool:
+        target = condition.get('target')
+        expected = condition.get('expected', True)
+        
+        if isinstance(expected, str):
+            expected = expected.lower() == 'true'
+        
+        element = self._resolve_element(target, required_field="checkbox_state")
+        if not element:
+            return False
+        
+        actual_state = None
+        
+        # Try get_toggle_state first (returns 0/1/2 typically)
+        if hasattr(element, 'get_toggle_state'):
+            try:
+                toggle_state = element.get_toggle_state()
+                if toggle_state in [0, 1]:
+                    actual_state = (toggle_state == 1)
+                elif isinstance(toggle_state, bool):
+                    actual_state = toggle_state
+            except Exception as e:
+                self.logger.debug(f"get_toggle_state failed for '{target}': {e}")
+        
+        # Fallback to is_checked
+        if actual_state is None and hasattr(element, 'is_checked'):
+            try:
+                actual_state = bool(element.is_checked())
+            except Exception as e:
+                self.logger.debug(f"is_checked failed for '{target}': {e}")
+        
+        if actual_state is None:
+            self.logger.error(f"Could not determine checkbox state for '{target}'")
+            return False
+        
+        result = (actual_state == expected)
+        
+        self.logger.info(
+            f"checkbox_state condition: target='{target}', "
+            f"state={actual_state}, expected={expected}, result={result}"
+        )
+        
+        return result
+
+    def _resolve_element(self, target: str, required_field: str = ""):
+        """
+        Resolve an element from a target string formatted as 'module.Class.element'.
+        """
+        if not target:
+            self.logger.error(f"{required_field} condition requires 'target' parameter")
+            return None
+        
+        parts = target.split('.')
+        if len(parts) < 3:
+            self.logger.error(f"Invalid target format '{target}'. Expected 'module.Class.element'")
+            return None
+        
+        module_name = parts[0]
+        class_name = parts[1]
+        element_name = parts[2]
+        
+        try:
             module = importlib.import_module(f"src.pages.{module_name}")
             page_class = getattr(module, class_name)
             page_instance = page_class()
             
-            # Get the element
             if not hasattr(page_instance, element_name):
                 self.logger.error(f"Page '{class_name}' has no element '{element_name}'")
-                return False
+                return None
             
-            element = getattr(page_instance, element_name)
-            
-            # Check existence with timeout
-            exists = False
-            if timeout > 0:
-                try:
-                    element.wait('exists', timeout=timeout)
-                    exists = True
-                except Exception:
-                    exists = False
-            else:
-                exists = element.exists()
-            
-            # Compare with expected value
-            result = (exists == expected)
-            
-            self.logger.info(
-                f"element_exists condition: target='{target}', "
-                f"exists={exists}, expected={expected}, result={result}"
-            )
-            
-            return result
-            
+            return getattr(page_instance, element_name)
+        
         except ImportError as e:
             self.logger.error(f"Could not import page module 'src.pages.{module_name}': {e}")
-            return False
+        except AttributeError as e:
+            self.logger.error(f"Attribute error resolving target '{target}': {e}")
         except Exception as e:
-            self.logger.error(f"Error evaluating element_exists condition for '{target}': {e}")
-            return False
+            self.logger.error(f"Error resolving target '{target}': {e}")
+        
+        return None

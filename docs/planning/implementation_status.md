@@ -2,15 +2,17 @@
 
 E2Eフレームワークの条件分岐と検証機能を強化するための現状と実装計画。
 
+**Status: Done**
+
 ## 1. コンディション (src/core/execution/condition.py)
 
-### 未実装 / 実装予定
+### 実装状況
 | 種類 | 説明 | 状況 | メモ |
 | :--- | :--- | :--- | :--- |
 | `variable` | 変数比較 | 既存 | equals, not_equals, contains をサポート |
 | `element_exists` | 要素の存在確認 | 既存 | timeout をサポート |
-| `element_text_empty` | 要素テキストが空 | 新規 | 「空なら入力」のロジックに使用 |
-| `checkbox_state` | チェックボックスの ON/OFF | 新規 | 「OFF なら ON にする」のロジックに使用 |
+| `element_text_empty` | 要素テキストが空 | Done | 「空なら入力」のロジックに使用 |
+| `checkbox_state` | チェックボックスの ON/OFF | Done | 「OFF なら ON にする」のロジックに使用 |
 
 ### 実装詳細
 - **element_text_empty**:
@@ -23,15 +25,15 @@ E2Eフレームワークの条件分岐と検証機能を強化するための�
 
 ## 2. 検証 (src/core/execution/actions/verify_actions.py)
 
-### 未実装 / 実装予定
+### 実装状況
 | 種類 | 説明 | 状況 | メモ |
 | :--- | :--- | :--- | :--- |
 | `exists` | 要素が存在 | 既存 | |
-| `not_exists` | 要素が存在しない | 新規 | 既存チェックの逆 |
-| `contains` | テキストに含む (単純) | 既存 | 正規表現対応を強化 |
-| `not_contains` | テキストに含まない | 新規 | contains の逆 |
-| `clickable` | 要素がクリック可能 | 新規 | `is_enabled()` と `is_visible()` を確認？ |
-| `matches` | 正規表現で全一致 | 新規 | 明示的な正規表現マッチ |
+| `not_exists` | 要素が存在しない | Done | 既存チェックの逆 |
+| `contains` | テキストに含む (単純) | Done | 正規表現対応を強化 |
+| `not_contains` | テキストに含まない | Done | contains の逆 |
+| `clickable` | 要素がクリック可能 | Done | `is_enabled()` と `is_visible()` を確認？ |
+| `matches` | 正規表現で全一致 | Done | 明示的な正規表現マッチ |
 
 ### 実装詳細
 - **not_exists**:
@@ -48,16 +50,15 @@ E2Eフレームワークの条件分岐と検証機能を強化するための�
 - **file_size**: (検証に一部実装済み？厳密に要確認)。
 - **list_count**: リスト/コンボの項目数を確認。
 
-## 3. 実装計画
+## 3. 実装計画 (完了)
 
-1. **`src/core/execution/condition.py` を更新**:
+1. **`src/core/execution/condition.py` を更新** (Done):
    - `_evaluate_text_empty` を追加。
    - `_evaluate_checkbox_state` を追加。
-2. **`src/core/execution/actions/verify_actions.py` を更新**:
+2. **`src/core/execution/actions/verify_actions.py` を更新** (Done):
    - `not_exists` を追加。
    - `contains` を正規表現対応に更新。
    - `not_contains` を追加。
    - `clickable` を追加。
-3. **ドキュメント**:
-   - 完了したら `implementation_status.md` を Done に更新。
- Update `implementation_status.md` to `Done` once completed.
+3. **ドキュメント** (Done):
+   - 完了したため `implementation_status.md` を更新済み。
