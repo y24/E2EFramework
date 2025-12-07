@@ -2,6 +2,10 @@
     "id": "SAMPLE-008",
     "name": "ファイル検証テストシナリオ",
     "description": "TextおよびExcelファイルのFileValidator機能を検証します。",
+    "tags": [
+        "sample",
+        "validation"
+    ],
     "steps": [
         {
             "name": "テスト用テキストファイル作成",

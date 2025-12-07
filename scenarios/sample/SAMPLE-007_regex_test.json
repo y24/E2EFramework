@@ -2,6 +2,10 @@
     "id": "SAMPLE-007",
     "name": "正規表現抽出テスト",
     "description": "UIアクションにおける正規表現抽出機能の動作を検証します。",
+    "tags": [
+        "sample",
+        "regex"
+    ],
     "steps": [
         {
             "step_id": 1,
