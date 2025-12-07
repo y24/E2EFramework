@@ -22,7 +22,7 @@
             "params": {
                 "operation": "input",
                 "target": "notepad_page.NotepadPage.editor",
-                "value": "${SAMPLE_TEXT}"
+                "value": "${TEST_SECTION.SAMPLE_TEXT}"
             }
         },
         {
@@ -31,7 +31,7 @@
             "params": {
                 "type": "contains",
                 "target": "notepad_page.NotepadPage.editor",
-                "contains": "${SAMPLE_TEXT}"
+                "contains": "${TEST_SECTION.SAMPLE_TEXT}"
             }
         },
         {
