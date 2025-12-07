@@ -8,9 +8,29 @@ class NotepadPage(BasePage):
 
     @property
     def window(self):
-        # Override to use Desktop scope because modern Notepad app launching behavior
-        # often detaches from the initial process handle tracked by Application().
-        from pywinauto import Desktop
+        # Prioritize searching by process ID for performance (Process Scope).
+        # This avoids scanning the entire Desktop which is very slow when many windows are open.
+        from src.utils.driver_factory import get_process_ids_by_name
+        from pywinauto import Application, Desktop
+
+        # 1. Try to connect to notepad.exe processes directly
+        pids = get_process_ids_by_name("notepad.exe")
+        for pid in pids:
+            try:
+                app = Application(backend='uia').connect(process=pid)
+                # Search within this app's process
+                win = app.window(title_re=self.title_re, found_index=0)
+                if win.exists(timeout=1):
+                    return win
+            except Exception:
+                continue
+
+        # 2. Fallback to Desktop scope (Slower)
+        # Modern Notepad app launching behavior often detaches from the initial process handle
+        # or implies a package process that might be tricky to catch by name purely.
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info("Process ID search failed. Falling back to full Desktop search. This may take some time...")
         return Desktop(backend='uia').window(title_re=self.title_re, found_index=0)
 
     @property
