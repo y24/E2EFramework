@@ -55,19 +55,21 @@ class NotepadPage(BasePage):
     @property
     def save_dialog(self):
         # Save dialog window. In Japanese "名前を付けて保存".
-        # This is a standard Windows file dialog
-        from pywinauto import Desktop
-        # Search for dialog with title containing "保存" or "Save"
-        return Desktop(backend='uia').window(title_re=".*(保存|Save).*", control_type="Window")
+        # Windows 11 modern Notepad shows save dialog as a child window of the main Notepad window,
+        # NOT as a separate desktop-level window.
+        # Search for child window with title containing "保存" or "Save"
+        return self.window.child_window(title_re=".*(名前を付けて保存|Save As).*", control_type="Window")
 
     @property
     def cancel_button(self):
         # Cancel button in save dialog. In Japanese "キャンセル".
-        # The button might be nested deep in the dialog hierarchy
-        dialog = self.save_dialog
-        if dialog.exists(timeout=1):
-            # Use descendants to search all child elements recursively
-            buttons = dialog.descendants(control_type="Button")
+        # Windows 11 modern Notepad: the cancel button is a descendant of the main window,
+        # not inside a separate dialog window.
+        # See docs/knowledge/use_descendants.md for why we use descendants()
+        try:
+            # Get the main window wrapper and search all descendants
+            window_wrapper = self.window.wrapper_object()
+            buttons = window_wrapper.descendants(control_type="Button")
             for btn in buttons:
                 try:
                     text = btn.window_text()
@@ -76,6 +78,8 @@ class NotepadPage(BasePage):
                         return btn
                 except:
                     continue
+        except Exception:
+            pass
         return None
 
     @property

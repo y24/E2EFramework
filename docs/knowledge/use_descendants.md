@@ -134,3 +134,119 @@ pytest tests/test_runner.py::test_execute_scenario[SAMPLE-005] -v
 
 **作成日**: 2025-12-07  
 **キーワード**: pywinauto, descendants, child_window, UI要素検索, 階層構造
+
+---
+
+## 追加知見: Windows 11モダンメモ帳のダイアログ構造 (2025-12-07追記)
+
+### 問題の再発
+
+同じエラーが再発しました:
+
+```
+Exception: UI Action Failed on notepad_page.NotepadPage.cancel_button: 
+'NoneType' object has no attribute 'click_input'
+```
+
+前回の修正（`descendants()`の使用）が適用済みにもかかわらず、エラーが発生していました。
+
+### 調査結果: ダイアログの検索スコープの問題
+
+デバッグにより、**`save_dialog`自体が見つからない**ことが判明しました。
+
+```python
+# 失敗したコード - デスクトップレベルで検索
+Desktop(backend='uia').window(title_re=".*(保存|Save).*", control_type="Window")
+# → exists() = False
+```
+
+### 原因: Windows 11モダンアプリのUI構造
+
+Windows 11のモダンなメモ帳（UWPベース）では、保存ダイアログが従来のWin32アプリとは異なる構造を持っています:
+
+| 従来のWin32アプリ | Windows 11モダンアプリ |
+|------------------|----------------------|
+| ダイアログはデスクトップレベルの独立ウィンドウ | ダイアログはメインウィンドウの**子要素** |
+| `Desktop().window()`で検索可能 | `self.window.child_window()`で検索 |
+| クラス名 `#32770` | UIA control_type `Window` |
+
+**デバッグで確認した構造**:
+```
+Desktop (トップレベル)
+└── メモ帳ウィンドウ (Window, title="*Testcontent - メモ帳")
+    └── 名前を付けて保存 (Window) ← ここにダイアログがある！
+        ├── 保存フィールド (Tree)
+        ├── 保存(S) (Button)
+        └── キャンセル (Button)
+```
+
+### 解決策: 検索スコープの変更
+
+```python
+# 修正前 - デスクトップから検索（モダンアプリでは動作しない）
+@property
+def save_dialog(self):
+    from pywinauto import Desktop
+    return Desktop(backend='uia').window(title_re=".*(保存|Save).*", control_type="Window")
+
+# 修正後 - メインウィンドウの子として検索
+@property
+def save_dialog(self):
+    return self.window.child_window(title_re=".*(名前を付けて保存|Save As).*", control_type="Window")
+```
+
+```python
+# 修正前 - save_dialogから検索
+@property
+def cancel_button(self):
+    dialog = self.save_dialog
+    if dialog.exists(timeout=2):
+        buttons = dialog.descendants(control_type="Button")
+        # ...
+
+# 修正後 - メインウィンドウから直接検索
+@property
+def cancel_button(self):
+    try:
+        window_wrapper = self.window.wrapper_object()
+        buttons = window_wrapper.descendants(control_type="Button")
+        for btn in buttons:
+            text = btn.window_text()
+            if "キャンセル" in text or "Cancel" in text:
+                return btn
+    except Exception:
+        pass
+    return None
+```
+
+### 教訓の追加
+
+#### ダイアログ検索の戦略
+
+1. **まず親ウィンドウをデバッグで確認**
+   ```python
+   # すべての子孫要素をダンプしてダイアログの位置を特定
+   for child in window.wrapper_object().descendants():
+       print(f"[{child.window_text()}] {child.element_info.control_type}")
+   ```
+
+2. **Desktop()で見つからない場合、親ウィンドウを変える**
+   - モダンアプリ: `self.window.child_window()` または `self.window.descendants()`
+   - 従来のアプリ: `Desktop().window()`
+
+3. **ボタンは親ウィンドウから直接検索も有効**
+   - ダイアログの存在確認をスキップし、直接ボタンを検索
+   - シンプルで堅牢なコードになる
+
+### 検証結果
+
+```bash
+pytest tests/test_runner.py::test_execute_scenario[SAMPLE-005] -v
+```
+
+**結果**: ✅ **1 passed in 10.61s**
+
+---
+
+**更新日**: 2025-12-07  
+**追加キーワード**: Windows 11, UWP, モダンアプリ, Desktop(), child_window(), ダイアログ検索スコープ

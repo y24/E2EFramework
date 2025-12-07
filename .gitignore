@@ -121,3 +121,6 @@ dmypy.json
 
 # Project specific
 reports/
+
+# Debug output
+debug_*.txt

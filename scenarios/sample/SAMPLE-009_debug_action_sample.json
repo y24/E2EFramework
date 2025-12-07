@@ -1,0 +1,129 @@
+{
+    "id": "DEBUG-001",
+    "name": "デバッグアクションサンプル",
+    "tags": [
+        "debug",
+        "sample",
+        "development"
+    ],
+    "description": "デバッグアクションの使用例を示すシナリオ",
+    "steps": [
+        {
+            "name": "メモ帳を起動",
+            "type": "system",
+            "params": {
+                "action": "start_app",
+                "path": "notepad.exe",
+                "backend": "uia"
+            }
+        },
+        {
+            "name": "待機",
+            "type": "system",
+            "params": {
+                "action": "sleep",
+                "duration": 1
+            }
+        },
+        {
+            "name": "デスクトップの全ウィンドウをリスト",
+            "type": "debug",
+            "params": {
+                "action": "list_desktop_windows"
+            }
+        },
+        {
+            "name": "メモ帳のウィンドウのみ表示",
+            "type": "debug",
+            "params": {
+                "action": "list_desktop_windows",
+                "filter": "メモ帳"
+            }
+        },
+        {
+            "name": "メモ帳の子孫要素をすべてリスト",
+            "type": "debug",
+            "params": {
+                "action": "list_descendants",
+                "target": "notepad_page.NotepadPage"
+            }
+        },
+        {
+            "name": "メモ帳のボタンのみリスト",
+            "type": "debug",
+            "params": {
+                "action": "list_descendants",
+                "target": "notepad_page.NotepadPage",
+                "control_type": "Button"
+            }
+        },
+        {
+            "name": "Win32ダイアログの存在確認",
+            "type": "debug",
+            "params": {
+                "action": "check_dialog",
+                "class_name": "#32770"
+            }
+        },
+        {
+            "name": "テキストを入力",
+            "type": "ui",
+            "params": {
+                "operation": "input",
+                "target": "notepad_page.NotepadPage.editor",
+                "value": "Debug action test"
+            }
+        },
+        {
+            "name": "Ctrl+Shift+Sで保存ダイアログを開く",
+            "type": "ui",
+            "params": {
+                "operation": "input",
+                "target": "notepad_page.NotepadPage.editor",
+                "value": "^+s"
+            }
+        },
+        {
+            "name": "保存ダイアログの表示を待機",
+            "type": "system",
+            "params": {
+                "action": "sleep",
+                "duration": 2
+            }
+        },
+        {
+            "name": "保存ダイアログ表示後の子孫要素を確認",
+            "type": "debug",
+            "params": {
+                "action": "list_descendants",
+                "target": "notepad_page.NotepadPage"
+            }
+        },
+        {
+            "name": "ボタン要素のみフィルタ",
+            "type": "debug",
+            "params": {
+                "action": "list_descendants",
+                "target": "notepad_page.NotepadPage",
+                "control_type": "Button"
+            }
+        },
+        {
+            "name": "キャンセルボタンをクリック",
+            "type": "ui",
+            "params": {
+                "operation": "click",
+                "target": "notepad_page.NotepadPage.cancel_button"
+            }
+        },
+        {
+            "name": "メモ帳を終了",
+            "type": "ui",
+            "params": {
+                "operation": "input",
+                "target": "notepad_page.NotepadPage.editor",
+                "value": "%{F4}"
+            }
+        }
+    ]
+}
