@@ -192,3 +192,50 @@ def pytest_generate_tests(metafunc):
         ids = [s.get('id', 'unnamed') for s in scenarios]
         
         metafunc.parametrize("scenario", scenarios, ids=ids)
+
+def pytest_sessionfinish(session, exitstatus):
+    """Generate meta.json at the end of the session."""
+    try:
+        from src.utils.meta_info import collect_meta_info
+        
+        run_folder = _get_run_folder()
+        base_reports = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'reports', run_folder))
+        
+        # Collect stats
+        reporter = session.config.pluginmanager.get_plugin('terminalreporter')
+        if reporter:
+            passed = len(reporter.stats.get('passed', []))
+            failed = len(reporter.stats.get('failed', []))
+            skipped = len(reporter.stats.get('skipped', []))
+            # Error counts usually in 'error'
+            error = len(reporter.stats.get('error', []))
+            total = passed + failed + skipped + error
+            
+            cases_stats = {
+                "total": total,
+                "passed": passed,
+                "failed": failed + error, # Group errors with failed or keep separate? distinct is usually better but user asked for simple
+                "skipped": skipped
+            }
+        else:
+            cases_stats = {"total": 0, "passed": 0, "failed": 0, "skipped": 0}
+
+        # Artifacts paths relative to project root or just logical paths
+        # Relative to project root: reports/RunID/...
+        artifacts = {
+            "evidence_dir": f"reports/{run_folder}/screenshots/",
+            "logs": f"reports/{run_folder}/run_{run_folder}.log",
+            "report": f"reports/{run_folder}/report.html"
+        }
+
+        meta_data = collect_meta_info(run_folder, cases_stats, artifacts)
+        
+        meta_json_path = os.path.join(base_reports, 'meta.json')
+        import json
+        with open(meta_json_path, 'w', encoding='utf-8') as f:
+            json.dump(meta_data, f, indent=2, ensure_ascii=False)
+            
+        logging.info(f"Meta JSON generated: {meta_json_path}")
+        
+    except Exception as e:
+        logging.error(f"Failed to generate meta.json: {e}")
