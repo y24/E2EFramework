@@ -33,10 +33,26 @@
             }
         },
         {
+            "name": "1秒待機",
+            "type": "web",
+            "params": {
+                "operation": "wait",
+                "duration": 1
+            }
+        },
+        {
             "name": "アラートのOKボタンをクリック",
             "type": "web",
             "params": {
                 "operation": "accept_alert"
+            }
+        },
+        {
+            "name": "1秒待機",
+            "type": "web",
+            "params": {
+                "operation": "wait",
+                "duration": 1
             }
         },
         {

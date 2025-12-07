@@ -21,6 +21,7 @@ _run_folder_name = None
 from src.core.context import Context
 from src.core.scenario_loader import ScenarioLoader
 from src.utils.driver_factory import DriverFactory
+from src.utils.web_driver_factory import WebDriverFactory
 from src.core.execution.runner import Runner
 from src.utils.screenshot import ScreenshotManager
 from src.utils.run_context import get_run_folder_name
@@ -94,6 +95,10 @@ def setup_session(request):
         root_logger = logging.getLogger()
         root_logger.removeHandler(request.config._log_file_handler)
         request.config._log_file_handler.close()
+    
+    # Webブラウザを終了
+    if WebDriverFactory.is_active():
+        WebDriverFactory.close_browser()
     
     DriverFactory.close_app()
 

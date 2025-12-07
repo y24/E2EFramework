@@ -13,4 +13,4 @@ class AlertSamplePage(BaseWebPage):
     URL = "https://www.tagindex.com/javascript/window/alert1.html"
     
     # 要素定義（ロケータータイプ, 値）
-    alert_button = ("xpath", "//input[@value='警告ダイアログ' and @type='button']")
+    alert_button = ("xpath", "//*[@id='content']/section[1]/figure/p/input")
