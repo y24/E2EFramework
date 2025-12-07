@@ -236,6 +236,36 @@ def pytest_sessionfinish(session, exitstatus):
             json.dump(meta_data, f, indent=2, ensure_ascii=False)
             
         logging.info(f"Meta JSON generated: {meta_json_path}")
+
+        # Send Notification
+        from src.utils.notifier import Notifier
+        from src.core.context import Context
+        
+        context = Context()
+        # Ensure config is loaded (might recall load_config if needed, but context singleton should hold it)
+        # However, pytest_sessionfinish might run in a fresh context if not careful, 
+        # but Context is singleton. Let's make sure we check config safely.
+        
+        webhook_url = context.get_variable('NOTIFICATION.TEAMSWEBHOOKURL')
+        
+        # If not found in variable lookup (Context.load_config puts uppercase keys usually), 
+        # try checking config object directly or re-read if necessary. 
+        # But 'load_config' flattened DEFAULT and env-specific to variables.
+        # Let's try direct config read if variable is missing, just to be safe, 
+        # or rely on what's in variables.
+        # Config parser keys are case insensitive options but section case matters.
+        if not webhook_url:
+             # Try standard config read just in case Context isn't fully populated in this scope (unlikely but safe)
+             # context.config should have it if loaded.
+             if 'NOTIFICATION' in context.config and 'TeamsWebhookUrl' in context.config['NOTIFICATION']:
+                 webhook_url = context.config['NOTIFICATION']['TeamsWebhookUrl']
+
+        notifier = Notifier(webhook_url)
+        run_info = {
+            "run_id": run_folder,
+            "env": session.config.getoption("--env")
+        }
+        notifier.send_teams_notification(cases_stats, run_info)
         
     except Exception as e:
-        logging.error(f"Failed to generate meta.json: {e}")
+        logging.error(f"Failed to generate meta.json or send notification: {e}")

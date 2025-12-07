@@ -51,11 +51,20 @@
 
 以下の要件は、ファイルが存在しないか、ロジックが不足しています。
 
-### 2.1 通知機能 (Notification)
+### 1.7 通知機能 (Notification)
 *   **要件**: テスト完了後、Teams 等へ結果を通知する。
-*   **現状**:
-    *   `src/utils/notifier.py` が存在しません。
-    *   `tests/conftest.py` の `teardown` 処理において、通知を送信するロジックが記述されていません。
+*   **実装状況**:
+    *   `src/utils/notifier.py` を作成し、Microsoft Teams への通知機能を実装。
+    *   `tests/conftest.py` の `pytest_sessionfinish` に統合し、テスト完了時に自動実行。
+    *   設定: `config.ini` の `[NOTIFICATION]` セクションで Webhook URL を管理 (URL未設定時はログ出力のみ)。
+
+---
+
+## 2. 未実装・要対応の機能 (Not Implemented / TODO)
+
+以下の要件は、ファイルが存在しないか、ロジックが不足しています。
+
+(ここに未実装項目があれば追記、現在はなし)
 
 
 
