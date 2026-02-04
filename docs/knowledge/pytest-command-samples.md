@@ -39,6 +39,13 @@
   pytest tests/test_runner.py -k "SAMPLE-00"
   ```
 
+- 最初の失敗で即時終了（デバッグ時に有用）
+  ```bash
+  pytest tests/test_runner.py -x
+  # または
+  pytest tests/test_runner.py --maxfail=1
+  ```
+
 ## レポート・出力の位置
 - HTML レポート: `reports/<RunID>/report.html`
 - スクリーンショット: `reports/<RunID>/screenshots/`
